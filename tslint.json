@@ -1,0 +1,17 @@
+{
+  "extends": [
+    "tslint-config-prettier"
+  ],
+  "rules": {
+    "class-name": true,
+    "comment-format": [
+      true,
+      "check-space"
+    ],
+    "no-var-keyword": true,
+    "no-internal-module": true,
+    "no-null-keyword": true,
+    "prefer-const": true,
+    "jsdoc-format": true
+  }
+}

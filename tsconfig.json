@@ -7,8 +7,8 @@
     "noUnusedParameters": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
     "moduleResolution": "node",
-    "baseUrl": "src",
     "sourceMap": true,
     "outDir": "dist",
     "lib":[

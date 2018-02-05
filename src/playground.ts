@@ -1,18 +1,10 @@
 import 'reflect-metadata'
 
-import {
-  Type,
-  Field,
-  Nullable,
-  Mutation,
-  Input,
-} from './decorators'
+import { Type, Field, Nullable, Mutation, Input } from './decorators'
 // import { refineModels } from './factory'
-import {
-  String, Boolean, ID, Int, Float
-} from './types'
+import { String, Boolean, ID, Int, Float } from './types'
 // import { chop } from './factory';
-import { makeSchema } from './schema';
+import { makeSchema } from './schema'
 
 @Type
 class B {
@@ -53,17 +45,20 @@ class A {
   @Field e: Int // Int!
   @Field f: Float // Float!
 
-  @Field(String) h: string  // String!
+  @Field(String) h: string // String!
   @Field(String) i: number // String! (override)
-  @Field([ID]) j: string[]  // [ID]!  배열은 이 방법 뿐임.
+  @Field([ID])
+  j: string[] // [ID]!  배열은 이 방법 뿐임.
   // @Field k: string[]  // EEEEEEEEEEEError.
-  
+
   @Field l: B // B!
-  @Field(B) m: B  // B!
+  @Field(B) m: B // B!
 
-  @Nullable @Field n?: String  // String
+  @Nullable
+  @Field
+  n?: String // String
 
-  // resolver가 있는 field도 동일.  
+  // resolver가 있는 field도 동일.
 
   @Field([B])
   z(_creator: string, _args: AddCreatorArguments, _req: Request): B[] {
@@ -76,10 +71,7 @@ class A {
   }
 }
 
-const schema = makeSchema(A, { models: [
-  B,
-  AddUserInput,
-  AddCreatorInput,
-  AddCreatorArguments, AddUserArguments
-]})
+const schema = makeSchema(A, {
+  models: [B, AddUserInput, AddCreatorInput, AddCreatorArguments, AddUserArguments],
+})
 console.log(schema)

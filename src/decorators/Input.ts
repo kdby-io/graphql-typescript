@@ -1,12 +1,12 @@
-import { setLiteral, getFields, generateFieldLiteral } from '../services'
-import { map } from 'lodash';
-import { FieldDescriptor } from '..';
+import { setLiteral, getFields, getFieldLiteral } from '../services'
+import { map } from 'lodash'
+import { FieldDescriptor } from '..'
 
 // Class Decorator
 export function Input(model: Function) {
   const fields = getFields(model.prototype)
   const fieldLiterals = map(fields, (_: FieldDescriptor, fieldName) => {
-    return generateFieldLiteral(model.prototype, fieldName)
+    return getFieldLiteral(model.prototype, fieldName)
   })
   const literal = `
     input ${model.name} {

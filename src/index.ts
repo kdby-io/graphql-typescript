@@ -4,7 +4,7 @@ export { makeSchema } from './schema'
 
 export interface FieldDescriptor {
   isList: boolean
-  type: string
+  type: Function
   nullable?: boolean
   resolver?: Function
 }

@@ -53,8 +53,9 @@ export function addMutation(prototype: any, mutationName: string, mutation: Fiel
 
 export function getFieldLiteral(prototype: any, fieldName: string): string {
   const field = getFields(prototype)[fieldName]
+  console.log(field.type)
   return `${fieldName}${getArgumentLiterals(prototype, fieldName)}: ${field.isList ? '[' : ''}${
-    field.type
+    field.type.name
   }${field.isList ? ']' : ''}${field.nullable ? '' : '!'}`
 }
 
@@ -64,7 +65,7 @@ export function getMutationLiteral(prototype: any, mutationName: string) {
     extend type Mutation {
       \t${mutationName}${getArgumentLiterals(prototype, mutationName)}: ${
     mutation.isList ? '[' : ''
-  }${mutation.type}${mutation.isList ? ']' : ''}${mutation.nullable ? '' : '!'}
+  }${mutation.type.name}${mutation.isList ? ']' : ''}${mutation.nullable ? '' : '!'}
     }
   `
 }

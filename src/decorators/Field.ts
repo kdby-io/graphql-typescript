@@ -9,7 +9,7 @@ export function Field(...args: any[]): Function | void {
 
   if (args.length === 1 && args[0] instanceof Function) {
     type = args[0] as Function
-    options = { type: type.name }
+    options = { type }
 
     return (prototype: any, propertyKey: string, descriptor: PropertyDescriptor) => {
       const field = createField(prototype, propertyKey, descriptor, options)
@@ -47,9 +47,9 @@ export function createField(
       ...options,
     }
   } else {
-    const fieldType: string = Reflect.getMetadata('design:type', prototype, propertyKey).name
+    const fieldType = Reflect.getMetadata('design:type', prototype, propertyKey)
 
-    switch (fieldType) {
+    switch (fieldType.name) {
       // with resolver
       case 'Function':
         const fieldReturnType = Reflect.getMetadata('design:returntype', prototype, propertyKey)

@@ -2,14 +2,12 @@ import { FieldDescriptor } from '..'
 import { addField } from '../services'
 
 export function Field(prototype: any, propertyKey: string, descriptor?: PropertyDescriptor): void
-export function Field(type: Function|[Function]): Function
+export function Field(type: Function | [Function]): Function
 export function Field(...args: any[]): Function | void {
-
-  let type: Function|[Function]
+  let type: Function | [Function]
   let options: Partial<FieldDescriptor>
 
-  if(args.length === 1 && args[0] instanceof Function) {
-
+  if (args.length === 1 && args[0] instanceof Function) {
     type = args[0] as Function
     options = { type: type.name }
 
@@ -17,9 +15,7 @@ export function Field(...args: any[]): Function | void {
       const field = createField(prototype, propertyKey, descriptor, options)
       addField(prototype, propertyKey, field)
     }
-
   } else if (args.length === 1 && args[0] instanceof Array) {
-
     type = args[0] as [Function]
     options = { type: type[0].name, isList: true }
 
@@ -27,32 +23,30 @@ export function Field(...args: any[]): Function | void {
       const field = createField(prototype, propertyKey, descriptor, options)
       addField(prototype, propertyKey, field)
     }
-
   } else {
-
-    const [ prototype, propertyKey, descriptor ] = args
+    const [prototype, propertyKey, descriptor] = args
     const field = createField(prototype, propertyKey, descriptor)
     addField(prototype, propertyKey, field)
-
   }
 }
 
-
-export function createField(prototype: any, propertyKey: string, descriptor?: PropertyDescriptor, options?: Partial<FieldDescriptor>) {
+export function createField(
+  prototype: any,
+  propertyKey: string,
+  descriptor?: PropertyDescriptor,
+  options?: Partial<FieldDescriptor>
+) {
   let field: Partial<FieldDescriptor> = {
     nullable: false,
     isList: false,
   }
 
   if (options && options.type) {
-
     field = {
       ...field,
       ...options,
     }
-
   } else {
-
     const fieldType: string = Reflect.getMetadata('design:type', prototype, propertyKey).name
 
     switch (fieldType) {
@@ -60,22 +54,23 @@ export function createField(prototype: any, propertyKey: string, descriptor?: Pr
       case 'Function':
         const fieldReturnType = Reflect.getMetadata('design:returntype', prototype, propertyKey)
         if (!fieldReturnType || fieldReturnType.name === 'Promise') {
-          throw new Error('Fucking Promise')
+          throw new Error(`@Field 데코레이터에 반환 타입 명시가 필요함`)
         }
         field.type = fieldReturnType
 
         // TODO: set argument type
-        break;
+        break
 
       case 'Array':
       case 'Object':
-        throw new Error(`Specify field type of '${propertyKey}' in '${prototype.constructor.name}' `)
+        throw new Error(
+          `Specify field type of '${propertyKey}' in '${prototype.constructor.name}' `
+        )
 
       default:
         field.type = fieldType
-        break;
+        break
     }
-
   }
 
   if (descriptor && descriptor.value) {
@@ -84,4 +79,3 @@ export function createField(prototype: any, propertyKey: string, descriptor?: Pr
 
   return field as FieldDescriptor
 }
-

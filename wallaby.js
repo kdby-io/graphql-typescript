@@ -5,10 +5,10 @@ module.exports = (wallaby) => {
       'src/**/*.json',
       'jest.config.js',
       'tsconfig.json',
-      '!test/**/*',
+      '!tests/**/*',
     ],
     tests: [
-      'test/**/*'
+      'tests/**/*'
     ],
     env: {
       type: 'node',

@@ -4,16 +4,17 @@ module.exports = {
       tsConfigFile: 'tsconfig.json',
     },
   },
-  moduleFileExtensions: ['json', 'ts', 'js'],
+  moduleFileExtensions: ["js", "jsx", "json", "ts", "tsx"],
   transform: {
     '^.+\\.ts$': './node_modules/ts-jest/preprocessor.js',
   },
-  roots: [
-    '<rootDir>/src',
-  ],
-  testMatch: ['**/*test.ts'],
+  // roots: [
+  //   '<rootDir>',
+  // ],
+  testRegex: '(/tests/.*|(\\.|/)(test|spec))\\.tsx?$',
+  // testMatch: ['test/**/*.test.ts'],
   testEnvironment: 'node',
-  collectCoverageFrom: ['src/**/*.{ts}', '!src/**/*test.{ts}', '!src/**/*.d.ts'],
+  collectCoverageFrom: ['src/**/*.ts', '!tests/**/*'],
   mapCoverage: true,
-  coverageDirectory: 'coverage',
+  coverageDirectory: '.coverage',
 };

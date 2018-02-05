@@ -17,42 +17,20 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "build": "rm -rf dist && tsc",
-    "prepublish": "rm -rf dist && tsc",
-    "precommit": "lint-staged"
+    "prepublish": "rm -rf dist && tsc"
   },
   "author": "Vichyssoise <v@vichyssoise.io>",
   "license": "ISC",
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "prettier --write",
-      "tslint --fix",
-      "git add"
-    ]
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/vichssoise/graphql-typescript.git"
-  },
-  "prettier": {
-    "printWidth": 100,
-    "parser": "typescript",
-    "trailingComma": "es5",
-    "singleQuote": true,
-    "semi": false,
-    "bracketSpacing": true,
-    "jsxBracketSameLine": false,
-    "arrowParens": "always",
-    "tabWidth": 2
   },
   "devDependencies": {
     "@types/graphql": "^0.12.3",
     "@types/jest": "^22.1.1",
     "@types/lodash": "^4.14.99",
     "@types/node": "^9.4.0",
-    "husky": "^0.14.3",
     "jest": "^22.1.4",
-    "lint-staged": "^6.1.0",
-    "prettier": "^1.10.2",
     "ts-jest": "^22.0.2",
     "tslint": "^5.9.1",
     "tslint-config-prettier": "^1.6.0",

@@ -5,7 +5,10 @@ import { FieldDescriptor } from '..'
 // Class Decorator
 export function Input(model: Function) {
   const fields = getFields(model.prototype)
-  const fieldLiterals = map(fields, (_: FieldDescriptor, fieldName) => {
+  const fieldLiterals = map(fields, (field: FieldDescriptor, fieldName) => {
+    if (field.resolver) {
+      throw new Error('An input type must have only scalar type fields')
+    }
     return getFieldLiteral(model.prototype, fieldName)
   })
   const literal = `

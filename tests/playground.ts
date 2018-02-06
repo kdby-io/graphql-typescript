@@ -1,10 +1,10 @@
 import 'reflect-metadata'
 
-import { Type, Field, Nullable, Mutation, Input } from './decorators'
+import { Type, Field, Nullable, Mutation, Input } from '../src/decorators'
 // import { refineModels } from './factory'
-import { String, Boolean, ID, Int, Float } from './types'
+import { String, Boolean, ID, Int, Float } from '../src/types'
 // import { chop } from './factory';
-import { makeSchema } from './schema'
+import { makeSchema } from '../src/schema'
 
 @Type
 class B {
@@ -71,7 +71,6 @@ class A {
   }
 }
 
-const schema = makeSchema(A, {
+makeSchema(A, {
   models: [B, AddUserInput, AddCreatorInput, AddCreatorArguments, AddUserArguments],
 })
-console.log(schema)

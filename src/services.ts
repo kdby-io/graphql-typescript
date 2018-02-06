@@ -2,13 +2,57 @@ import 'reflect-metadata'
 import { FieldDescriptor, FieldDescriptorDictionary } from '.'
 import { map } from 'lodash'
 
+export function createField(prototype: any, propertyKey: string, descriptor?: PropertyDescriptor, options?: Partial<FieldDescriptor>) {
+  let field: Partial<FieldDescriptor> = {
+    nullable: false,
+    isList: false,
+  }
+
+  if (options && options.type) {
+    field = { ...field, ...options }
+
+  } else {
+    const fieldType = Reflect.getMetadata('design:type', prototype, propertyKey)
+
+    switch (fieldType.name) {
+      // with resolver
+      case 'Function':
+        const fieldReturnType = Reflect.getMetadata('design:returntype', prototype, propertyKey)
+        if (!fieldReturnType || fieldReturnType.name === 'Promise') {
+          throw new Error(`@Field 데코레이터에 반환 타입 명시가 필요함`)
+        }
+        field.type = fieldReturnType
+        break
+
+      case 'Array':
+      case 'Object':
+        throw new Error(
+          `Specify field type of '${propertyKey}' in '${prototype.constructor.name}' `
+        )
+
+      default:
+        field.type = fieldType
+        break
+    }
+  }
+
+  if (descriptor && descriptor.value) {
+    field.resolver = descriptor.value
+  }
+
+  return field as FieldDescriptor
+}
+
+
 export function setLiteral(prototype: any, literal: string) {
   Reflect.defineMetadata('graphql:literal', literal, prototype)
 }
 
+
 export function getLiteral(prototype: any): string {
   return Reflect.getMetadata('graphql:literal', prototype)
 }
+
 
 export function addField(prototype: any, fieldName: string, field: FieldDescriptor) {
   const fields = getFields(prototype)
@@ -16,13 +60,16 @@ export function addField(prototype: any, fieldName: string, field: FieldDescript
   setFields(prototype, fields)
 }
 
+
 function setFields(prototype: any, fields: { [fieldName: string]: FieldDescriptor }) {
   Reflect.defineMetadata('graphql:fields', fields, prototype)
 }
 
+
 export function getFields(prototype: any): FieldDescriptorDictionary {
   return Reflect.getMetadata('graphql:fields', prototype) || {}
 }
+
 
 export function setFieldOptions(
   prototype: any,
@@ -37,13 +84,16 @@ export function setFieldOptions(
   setFields(prototype, fields)
 }
 
+
 function setMutations(prototype: any, mutations: FieldDescriptorDictionary) {
   Reflect.defineMetadata('graphql:mutations', mutations, prototype)
 }
 
+
 export function getMutations(prototype: any): FieldDescriptorDictionary {
   return Reflect.getMetadata('graphql:mutations', prototype) || {}
 }
+
 
 export function addMutation(prototype: any, mutationName: string, mutation: FieldDescriptor) {
   const mutations = getMutations(prototype)
@@ -51,34 +101,58 @@ export function addMutation(prototype: any, mutationName: string, mutation: Fiel
   setMutations(prototype, mutations)
 }
 
+
 export function getFieldLiteral(prototype: any, fieldName: string): string {
   const field = getFields(prototype)[fieldName]
-  console.log(field.type)
-  return `${fieldName}${getArgumentLiterals(prototype, fieldName)}: ${field.isList ? '[' : ''}${
+  return `${
+    fieldName
+  }${
+    getArgumentLiterals(prototype, fieldName)
+  }: ${
+    field.isList ? '[' : ''
+  }${
     field.type.name
-  }${field.isList ? ']' : ''}${field.nullable ? '' : '!'}`
+  }${
+    field.isList ? ']' : ''
+  }${
+    field.nullable ? '' : '!'
+  }`
 }
+
 
 export function getMutationLiteral(prototype: any, mutationName: string) {
   const mutation = getMutations(prototype)[mutationName]
   return `
     extend type Mutation {
-      \t${mutationName}${getArgumentLiterals(prototype, mutationName)}: ${
-    mutation.isList ? '[' : ''
-  }${mutation.type.name}${mutation.isList ? ']' : ''}${mutation.nullable ? '' : '!'}
+      \t${
+        mutationName
+      }${
+        getArgumentLiterals(prototype, mutationName)
+      }: ${
+        mutation.isList ? '[' : ''
+      }${
+        mutation.type.name
+      }${
+        mutation.isList ? ']' : ''
+      }${
+        mutation.nullable ? '' : '!'
+      }
     }
   `
 }
 
+
 function getArgumentLiterals(prototype: any, resolverName: string) {
   const argumentType = getArgumentType(prototype, resolverName)
   if (!argumentType) return ''
+
   const argumentFields = getFields(argumentType.prototype)
   const argumentLiterals = map(argumentFields, (_: FieldDescriptor, argumentName) => {
     return getFieldLiteral(argumentType.prototype, argumentName)
   })
   return `(${argumentLiterals.join(', ')})`
 }
+
 
 function getArgumentType(prototype: any, resolverName: string) {
   const resolverArgumentTypes = Reflect.getMetadata('design:paramtypes', prototype, resolverName)

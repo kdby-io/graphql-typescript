@@ -11,8 +11,11 @@ import {
 } from '../src/services'
 import { String } from '../src'
 
+describe('createField', () => {
+})
+
 describe('setLiteral', () => {
-  it(`sets 'graphql:literal' metadata of target`, () => {
+  it(`sets literal of target`, () => {
     class A {}
     setLiteral(A.prototype, 'hello')
     const literal = Reflect.getMetadata('graphql:literal', A.prototype)
@@ -22,7 +25,7 @@ describe('setLiteral', () => {
 })
 
 describe('getLiteral', () => {
-  it(`returns 'graphql:literal' metadata of target`, () => {
+  it(`returns literal of target`, () => {
     class A {}
     Reflect.defineMetadata('graphql:literal', 'hello', A.prototype)
     const literal = getLiteral(A.prototype)
@@ -32,7 +35,7 @@ describe('getLiteral', () => {
 })
 
 describe('addField', () => {
-  it(`adds 'graphql:fields' metadata of target`, () => {
+  it(`adds a field of target`, () => {
     class A {}
     addField(A.prototype, 'hello', { isList: false, nullable: false, type: String })
     const field = getFields(A.prototype).hello
@@ -44,7 +47,7 @@ describe('addField', () => {
 })
 
 describe('getFields', () => {
-  it(`returns 'graphql:fields' metadata of target`, () => {
+  it(`returns fields of target`, () => {
     class A {}
     Reflect.defineMetadata(
       'graphql:fields',
@@ -60,7 +63,7 @@ describe('getFields', () => {
 })
 
 describe('getMutations', () => {
-  it(`returns 'graphql:mutations' metadata of target`, () => {
+  it(`returns mutations of target`, () => {
     class A {}
     const resolver = () => {}
     Reflect.defineMetadata(
@@ -78,7 +81,7 @@ describe('getMutations', () => {
 })
 
 describe('addMutation', () => {
-  it(`adds 'graphql:mutations' metadata of target`, () => {
+  it(`adds mutations of target`, () => {
     class A {}
     const resolver = () => {}
     addMutation(A.prototype, 'hello', { isList: false, type: String, resolver })
@@ -188,7 +191,6 @@ describe('getMutationLiteral', () => {
     Reflect.defineMetadata('design:paramtypes', [Object, Arguments], A.prototype, 'hello')
 
     const literal = getMutationLiteral(A.prototype, 'hello')
-    console.log(literal)
     expect(literal).toMatch(
       /extend type Mutation \{(.|\n)*hello\(hello: String!\): String!(.|\n)*\}/
     )

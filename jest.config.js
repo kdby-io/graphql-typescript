@@ -8,11 +8,7 @@ module.exports = {
   transform: {
     '^.+\\.ts$': './node_modules/ts-jest/preprocessor.js',
   },
-  // roots: [
-  //   '<rootDir>',
-  // ],
   testRegex: '(/tests/.*|(\\.|/)(test|spec))\\.tsx?$',
-  // testMatch: ['test/**/*.test.ts'],
   testEnvironment: 'node',
   collectCoverageFrom: ['src/**/*.ts', '!tests/**/*'],
   mapCoverage: true,

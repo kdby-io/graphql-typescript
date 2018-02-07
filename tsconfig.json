@@ -9,6 +9,7 @@
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false,
     "moduleResolution": "node",
+    "declaration": true,
     "sourceMap": true,
     "outDir": "dist",
     "lib":[
@@ -18,6 +19,7 @@
     ]
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist",
   ]
 }

@@ -3,12 +3,13 @@ import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
 import { omit } from 'lodash'
 
 import { chop } from './factory'
+import { GraphQLSchema } from 'graphql';
 
 type Options = TypeArrayOption & RestOptions
 type TypeArrayOption = { models: Function[] }
 type RestOptions = Pick<IExecutableSchemaDefinition, 'connectors'|'logger'|'allowUndefinedInResolve'|'resolverValidationOptions'|'directiveResolvers'>
 
-export const makeSchema = (rootModel: Function, options: Options) => {
+export const makeSchema = (rootModel: Function, options: Options): GraphQLSchema => {
   const schema = `
     schema {
       query: ${rootModel.name}
@@ -17,7 +18,6 @@ export const makeSchema = (rootModel: Function, options: Options) => {
     type Mutation
   `
     const { types, mutations, resolvers } = chop([rootModel, ...options.models])
-    console.log(resolvers)
 
   return makeExecutableSchema({
     typeDefs: [schema, ...types],

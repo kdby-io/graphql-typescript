@@ -3,7 +3,7 @@ import { IResolvers } from 'graphql-tools/dist/Interfaces'
 import { getLiteral, getFields, getMutations, getMutationLiteral } from './services'
 import { FieldDescriptor } from '.'
 
-interface Chopped {
+export interface Chopped {
   types: string[]
   resolvers: { [model: string]: { [property: string]: IResolvers } }
   mutations: { [model: string]: IResolvers }

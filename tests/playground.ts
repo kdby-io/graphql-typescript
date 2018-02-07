@@ -1,10 +1,10 @@
 import 'reflect-metadata'
 
-import { Type, Field, Nullable, Mutation, Input } from '../src/decorators'
-// import { refineModels } from './factory'
-import { String, Boolean, ID, Int, Float } from '../src/types'
-// import { chop } from './factory';
-import { makeSchema } from '../src/schema'
+import {
+  Type, Field, Nullable, Mutation, Input,
+  String, Boolean, ID, Int, Float,
+  makeSchema,
+} from '../src'
 
 @Type
 class B {
@@ -17,12 +17,13 @@ class AddUserInput {
   @Field phone: String
 }
 
-@Input
 class AddUserArguments {
   @Field email: String
   @Field password: String
   @Field input: AddUserInput
 }
+
+class EmptyArgument {}
 
 @Input
 class AddCreatorInput {
@@ -47,16 +48,13 @@ class A {
 
   @Field(String) h: string // String!
   @Field(String) i: number // String! (override)
-  @Field([ID])
-  j: string[] // [ID]!  배열은 이 방법 뿐임.
+  @Field([ID]) j: string[] // [ID]!  배열은 이 방법 뿐임.
   // @Field k: string[]  // EEEEEEEEEEEError.
 
   @Field l: B // B!
   @Field(B) m: B // B!
 
-  @Nullable
-  @Field
-  n?: String // String
+  @Nullable @Field n?: String // String
 
   // resolver가 있는 field도 동일.
 
@@ -69,8 +67,13 @@ class A {
   async y(_creator: A, _args: AddUserArguments, _req: Request) {
     return name
   }
+
+  @Mutation(B)
+  async x(_creator: A, _args: EmptyArgument, _req: Request) {
+    return name
+  }
 }
 
 makeSchema(A, {
-  models: [B, AddUserInput, AddCreatorInput, AddCreatorArguments, AddUserArguments],
+  models: [B, AddUserInput, AddCreatorInput],
 })

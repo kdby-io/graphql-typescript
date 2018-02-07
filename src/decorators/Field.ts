@@ -1,5 +1,5 @@
 import { FieldDescriptor } from '..'
-import { addField, createField } from '../services'
+import { addField, createFieldDescriptor } from '../services'
 
 export function Field(prototype: any, propertyKey: string, descriptor?: PropertyDescriptor): void
 export function Field(type: Function | [Function]): Function
@@ -17,7 +17,7 @@ export function Field(...args: any[]): Function | void {
         options = { type }
 
         return (prototype: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-          const field = createField(prototype, propertyKey, descriptor, options)
+          const field = createFieldDescriptor(prototype, propertyKey, descriptor, options)
           addField(prototype, propertyKey, field)
         }
 
@@ -27,21 +27,21 @@ export function Field(...args: any[]): Function | void {
         options = { type: type[0], isList: true }
 
         return (prototype: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-          const field = createField(prototype, propertyKey, descriptor, options)
+          const field = createFieldDescriptor(prototype, propertyKey, descriptor, options)
           addField(prototype, propertyKey, field)
         }
 
 
       // with a wrong argument
       default:
-        throw new Error('잘못된 입력')
+        throw new Error(`A argument of @Field must be a type or a array type`)
     }
 
 
   // without argument
   } else {
     const [prototype, propertyKey, descriptor] = args
-    const field = createField(prototype, propertyKey, descriptor)
+    const field = createFieldDescriptor(prototype, propertyKey, descriptor)
     addField(prototype, propertyKey, field)
   }
 }

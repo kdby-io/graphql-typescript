@@ -1,9 +1,8 @@
-class GraphQLType {}
-class String extends GraphQLType {}
-class Boolean extends GraphQLType {}
-class ID extends GraphQLType {}
-class Int extends GraphQLType {}
-class Float extends GraphQLType {}
+class String {}
+class Boolean {}
+class ID {}
+class Int {}
+class Float {}
 
 export {
   String,

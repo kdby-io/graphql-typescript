@@ -1,6 +1,6 @@
 
 import { FieldDescriptor } from '..'
-import { addMutation, createField } from '../services'
+import { addMutation, createFieldDescriptor } from '../services'
 
 export function Mutation(prototype: any, propertyKey: string, descriptor?: PropertyDescriptor): void
 export function Mutation(type: Function|[Function]): Function
@@ -18,7 +18,7 @@ export function Mutation(...args: any[]): Function | void {
         options = { type }
 
         return (prototype: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-          const field = createField(prototype, propertyKey, descriptor, options)
+          const field = createFieldDescriptor(prototype, propertyKey, descriptor, options)
           addMutation(prototype, propertyKey, field)
         }
 
@@ -29,20 +29,20 @@ export function Mutation(...args: any[]): Function | void {
         options = { type: type[0], isList: true }
 
         return (prototype: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-          const field = createField(prototype, propertyKey, descriptor, options)
+          const field = createFieldDescriptor(prototype, propertyKey, descriptor, options)
           addMutation(prototype, propertyKey, field)
         }
     
 
       // with a wrong argument
       default:
-        throw new Error('잘못된 입력')
+        throw new Error('A argument of @Mutation must be a type or a array type')
     }
 
 
   } else {
     const [ prototype, propertyKey, descriptor ] = args
-    const field = createField(prototype, propertyKey, descriptor)
+    const field = createFieldDescriptor(prototype, propertyKey, descriptor)
     addMutation(prototype, propertyKey, field)
   }
 }

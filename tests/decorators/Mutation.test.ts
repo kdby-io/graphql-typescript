@@ -44,7 +44,7 @@ describe('@Mutation', () => {
     try {
       class A { @Mutation hello() { }} A
     } catch (e) {
-      expect(e).toHaveProperty('message', '@Field 데코레이터에 반환 타입 명시가 필요함')
+      expect(e.message).toBe(`Specify field type of 'hello' in 'A'. ex) @Field(String)`)
     }
   })
 
@@ -52,7 +52,7 @@ describe('@Mutation', () => {
     try {
       class A { @Mutation hello() { }} A
     } catch (e) {
-      expect(e).toHaveProperty('message', '@Field 데코레이터에 반환 타입 명시가 필요함')
+      expect(e.message).toBe(`Specify field type of 'hello' in 'A'. ex) @Field(String)`)
     }
   })
 
@@ -60,7 +60,7 @@ describe('@Mutation', () => {
     try {
       class A { @Mutation hello() { }} A
     } catch (e) {
-      expect(e).toHaveProperty('message', '@Field 데코레이터에 반환 타입 명시가 필요함')
+      expect(e.message).toBe(`Specify field type of 'hello' in 'A'. ex) @Field(String)`)
     }
   })
 })

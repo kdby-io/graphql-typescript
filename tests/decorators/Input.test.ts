@@ -21,7 +21,7 @@ describe('@Input', () => {
       @Input class Argument { @Field arg1: String }
       @Input class A { @Field(String) hello(_: any, _args: Argument) {} } A
     } catch (e) {
-      expect(e).toHaveProperty('message', 'An input type must have only scalar type fields')
+      expect(e.message).toBe('An Input must have only scalar type fields')
     }
   })
 })

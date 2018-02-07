@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import { FieldDescriptor, FieldDescriptorDictionary } from '.'
 import { map } from 'lodash'
 
-export function createField(prototype: any, propertyKey: string, descriptor?: PropertyDescriptor, options?: Partial<FieldDescriptor>) {
+export function createFieldDescriptor(prototype: any, propertyKey: string, descriptor?: PropertyDescriptor, options?: Partial<FieldDescriptor>) {
   let field: Partial<FieldDescriptor> = {
     nullable: false,
     isList: false,
@@ -19,16 +19,14 @@ export function createField(prototype: any, propertyKey: string, descriptor?: Pr
       case 'Function':
         const fieldReturnType = Reflect.getMetadata('design:returntype', prototype, propertyKey)
         if (!fieldReturnType || fieldReturnType.name === 'Promise') {
-          throw new Error(`@Field 데코레이터에 반환 타입 명시가 필요함`)
+          throw new Error(`Specify field type of '${propertyKey}' in '${prototype.constructor.name}'. ex) @Field(String)`)
         }
         field.type = fieldReturnType
         break
 
       case 'Array':
       case 'Object':
-        throw new Error(
-          `Specify field type of '${propertyKey}' in '${prototype.constructor.name}' `
-        )
+        throw new Error(`Specify field type of '${propertyKey}' in '${prototype.constructor.name}'. ex) @Field(String)`)
 
       default:
         field.type = fieldType
@@ -150,7 +148,7 @@ function getArgumentLiterals(prototype: any, resolverName: string) {
   const argumentLiterals = map(argumentFields, (_: FieldDescriptor, argumentName) => {
     return getFieldLiteral(argumentType.prototype, argumentName)
   })
-  return `(${argumentLiterals.join(', ')})`
+  return argumentLiterals.length ? `(${argumentLiterals.join(', ')})` : ''
 }
 
 
@@ -160,7 +158,7 @@ function getArgumentType(prototype: any, resolverName: string) {
 
   const argumentType = resolverArgumentTypes[1]
   if (argumentType.name === 'Object') {
-    throw new Error(`${resolverName}의 인자 타입은 '@Input'으로 선언된 클래스 타입이여야 합니다.`)
+    throw new Error(`The second parameter type of ${resolverName} must be a class including Input type fields.`)
   }
   return argumentType
 }

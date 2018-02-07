@@ -7,7 +7,7 @@ export function Input(model: Function) {
   const fields = getFields(model.prototype)
   const fieldLiterals = map(fields, (field: FieldDescriptor, fieldName) => {
     if (field.resolver) {
-      throw new Error('An input type must have only scalar type fields')
+      throw new Error('An Input must have only scalar type fields')
     }
     return getFieldLiteral(model.prototype, fieldName)
   })

@@ -1,6 +1,6 @@
 # graphql-typescript
 
-Decorators????????
+Define and build GraphQL Schemas using typed classes
 
 - [Type definition](#type-definition)
   + [`@Type`](#@type)
@@ -8,6 +8,7 @@ Decorators????????
   + [`@Mutation`](#@mutation)
   + [`@Nullable`](#@nullable)
   + [`@Input`](#@input)
+  + [Scalar types](#scalar-types)
 - [Arguments](#arguments)
 - [Generating GraphQL Schema](#generating-graphql-schema)
 
@@ -61,7 +62,7 @@ npm install -S graphql-typescript
 
 ### `@Type`
 
-클래스 선언 앞에 `@Type`을 붙여 [GraphQL object type](http://graphql.org/learn/schema/#object-types-and-fields)을 정의할 수 있습니다.
+Adding `@Type` to a class definition defines [GraphQL object type](http://graphql.org/learn/schema/#object-types-and-fields).
 
 ```ts
 @Type class Character {
@@ -77,22 +78,22 @@ npm install -S graphql-typescript
 
 ### `@Field`
 
-`@Type`이 붙은 클래스의 프로퍼티나 메소드에 `@Field`를 붙혀서 해당 타입의 필드를 정의할 수 있습니다.
-프로퍼티의 타입이나 메소드의 반환타입은 당신이 정의한 다른 타입이나 'graphql-typescript'가 정의한 기본 스칼라 타입이어야 합니다.
+Adding `@Field` to properties or methods of a `@Type` decorated class defines what fields it has.
+Property types or method return types must be one of the [Scalar types](#scalar-types) or your own GraphQL object types.
 
 ```ts
 @Field hello: String
 @Field hello(_:any, args: any, context: any): String { ... }
 ```
 
-반환타입을 명시하지 않고 `@Field`의 파라미터로 해당 필드의 반환타입을 지정할 수 있습니다.
+It is possible to specify field type by passing a single argument to `@Field`. In this case, a type annotation is ignored.
 
 ```ts
 @Field(String) hello: any
 @Field(String) hello(_: any, args: any, context: any) { ... }
 ```
 
-만약 반환타입이 리스트라면 `@Field`의 파라미터로 반환타입을 지정해야 합니다.
+If a field is list type, a argument of `@Field` would be like below.
 
 ```ts
 @Field([String]) hello: String[]
@@ -102,21 +103,20 @@ npm install -S graphql-typescript
 
 ### `@Mutation`
 
-`@Type`이 붙은 클래스의 메소드에 `@Mutation`를 붙혀서 뮤테이션을 정의할 수 있습니다.
-뮤테이션은 어느 클래스 안에 있던 상관없습니다.
-메소드의 반환타입은 당신이 정의한 다른 타입이나 'graphql-typescript'가 정의한 기본 스칼라 타입이어야 합니다.
+Adding `@Mutation` to methods of a `@Type` decorated class defines a mutation. No matter which class it is in, it will come under [mutation type](http://graphql.org/learn/schema/#the-query-and-mutation-types).
+Method return types must be one of the [Scalar types](#scalar-types) or your own GraphQL object types.
 
 ```ts
 @Mutation hello(_: any, args: Argument, context: any): String { ... }
 ```
 
-반환타입을 명시하지 않고 `@Mutation`의 파라미터로 해당 필드의 반환타입을 지정할 수 있습니다.
+It is possible to specify mutation return type by passing a single argument to `@Mutation`. In this case, a type annotation is ignored.
 
 ```ts
 @Mutation(String) hello(_: any, args: Argument, context: any) { ... }
 ```
 
-만약 반환타입이 리스트라면 `@Mutation`의 파라미터로 반환타입을 지정해야 합니다.
+If a mutation returns list type, a argument of `@Mutation` would be like below.
 
 ```ts
 @Mutation([String]) hello(_: any, args: Argument, context: any) { ... }
@@ -125,7 +125,8 @@ npm install -S graphql-typescript
 
 ### `@Nullable`
 
-필드나 뮤테이션의 반환값이 없을 수 있다면 `@Field`나 `@Mutation` 앞에 `@Nullable`을 붙여서 
+All fields and mutations are Non-null type by default.
+Adding `@Nullable to fields or mutations properties make it nullable.
 
 ```ts
 @Nullable @Field(String) hello: any
@@ -134,7 +135,8 @@ npm install -S graphql-typescript
 
 ### `@Input`
 
-클래스 선언 앞에 `@Input`을 붙여 input type을 정의할 수 있습니다.
+Adding `@Input` to a class definition defines [a input type](http://graphql.org/learn/schema/#input-types)
+An input class can only have `@Field` properties.
 
 ```ts
 @Input class AddCharacterInput {
@@ -143,12 +145,10 @@ npm install -S graphql-typescript
 }
 ```
 
-`@Input`이 있는 클래스는 오직 `@Field`를 가진 프로퍼티만 있어야 합니다. 메소드나 `@Mutation` 필드를 선언할 수 없습니다.
-
 
 ### Scalar types
 
-필드나 뮤테이션을 [GraphQL의 기본 스칼라 타입](http://graphql.org/learn/schema/#scalar-types)으로 하기 위해선 `graphql-typescript`로 부터 임포트해야합니다. 
+To use [GraphQL default scalar types](http://graphql.org/learn/schema/#scalar-types), import it from 'graphql-typescript'
 
 ```ts
 import { String, Boolean, Int, Float, ID } from 'graphql-typescript'
@@ -156,9 +156,8 @@ import { String, Boolean, Int, Float, ID } from 'graphql-typescript'
 
 ## Arguments
 
-모든 GraphQL object type의 필드는 arguments를 가질 수 있습니다. `@Field`나 `@Mutation`이 붙은 메소드는 두번째 인자로 요청 쿼리의 arguments를 가져옵니다.
-
-arguments의 형태를 클래스로 정의하여 타입으로 선언하여 사용합니다. 해당 클래스는 decorator가 없이 선언되고, 오직 `@Field`가 붙은 프로퍼티만 있어야 합니다.
+All fields of GraphQL objects type can have arguments. Methods with `@Field` or `@Mutation` get request query arguments from second parameter.
+It needs to define a argument class. Because a purpose of this class is only typing arguments, there is no class decorator and it can have only `@Field` properties.
 
 ```ts
 @Type class Box {
@@ -170,7 +169,7 @@ class UnboxArguments {
 }
 ```
 
-그러면 요청 쿼리를 아래와 같이 보낼 수 있습니다.
+Then request query can be like below.
 
 ```graphql
 query {
@@ -180,7 +179,7 @@ query {
 }
 ```
 
-argument에 `Input` 타입을 넣으려면 다음과 같이 합니다.
+To use input type in argument, do like below.
 
 ```ts
 @Type class Box {
@@ -218,5 +217,5 @@ makeSchema(rootType, {
 })
 ```
 
-- `rootType`: 스키마의 루트 쿼리의 타입
-- `models`: 루트 타입을 제외한 나머지 타입들
+- `rootType`: A root type of schema
+- `models`: Rest of types except a root type

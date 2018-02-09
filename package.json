@@ -1,6 +1,6 @@
 {
   "name": "graphql-typescript",
-  "version": "0.0.0",
+  "version": "0.1.1",
   "description": "",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -18,7 +18,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "build": "rm -rf dist && tsc",
-    "prepublish": "rm -rf dist && tsc"
+    "prepare": "yarn build"
   },
   "author": "Vichyssoise <v@vichyssoise.io>",
   "license": "ISC",

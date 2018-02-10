@@ -54,6 +54,7 @@ Set decorator flags in your `tsconfig.json`
 ### Installing
 
 ```
+npm install -S graphql
 npm install -S graphql-typescript
 ```
 

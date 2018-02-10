@@ -1,3 +1,5 @@
+ [![npm](https://img.shields.io/npm/dt/graphql-typescript.svg?style=for-the-badge)](https://www.npmjs.com/package/graphql-typescript) [![CircleCI token](https://img.shields.io/circleci/token/13928c03d7e040db692e4a58e8a387a856d12fd7/project/github/vichyssoise/graphql-typescript/master.svg?style=for-the-badge)](https://circleci.com/gh/vichyssoise/graphql-typescript/tree/master) [![Coveralls github](https://img.shields.io/coveralls/github/vichyssoise/graphql-typescript/master.svg?style=for-the-badge)](https://coveralls.io/github/vichyssoise/graphql-typescript?branch=master)
+
 # graphql-typescript
 
 Define and build GraphQL Schemas using typed classes

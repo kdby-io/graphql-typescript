@@ -15,7 +15,7 @@
     "url": "https://github.com/vichyssoise/graphql-typescript/issues"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
     "test:watch": "jest --watch",
     "build": "rm -rf dist && tsc",
     "prepare": "yarn build"
@@ -31,6 +31,7 @@
     "@types/jest": "^22.1.1",
     "@types/lodash": "^4.14.99",
     "@types/node": "^9.4.0",
+    "coveralls": "^3.0.0",
     "jest": "^22.1.4",
     "ts-jest": "^22.0.2",
     "tslint": "^5.9.1",

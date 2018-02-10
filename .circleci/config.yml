@@ -21,6 +21,11 @@ jobs:
       - run:
           name: Test
           command: yarn test
+
+      - run:
+          name: Report Coverage
+          command: $(yarn bin)/coveralls < ./.coverage/lcov.info
+
       - run:
           name: Build
           command: yarn build

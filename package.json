@@ -39,7 +39,7 @@
     "typescript": "^2.7.1"
   },
   "dependencies": {
-    "graphql": "^0.12.3",
+    "graphql": "^0.13.0",
     "graphql-tools": "^2.19.0",
     "lodash": "^4.17.4",
     "reflect-metadata": "^0.1.12"

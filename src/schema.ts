@@ -31,7 +31,7 @@ export const makeSchema = (rootModel: Function, options: Options): GraphQLSchema
     ...omit(options, 'models'),
   }
 
-  if (hasMutations) {
+  if (!hasMutations) {
     delete schemaDefinition.resolvers.Mutation
   }
 

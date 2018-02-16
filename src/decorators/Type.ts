@@ -1,16 +1,17 @@
-import { getFields, setLiteral, getFieldLiteral } from '../services'
-import { map } from 'lodash'
-import { FieldDescriptor } from '..'
+import { getProperties, setLiteral, getPropertyLiteral } from '../services'
+import { forEach } from 'lodash'
 
 // Class Decorator
 export function Type(model: Function) {
-  const fields = getFields(model.prototype)
-  const fieldLiterals = map(fields, (_: FieldDescriptor, fieldName) => {
-    return getFieldLiteral(model.prototype, fieldName)
+  const properties = getProperties(model.prototype)
+  const propertyLiterals: string[] = []
+  forEach(properties, (property, propertyName) => {
+    if (property.isMutation) return
+    propertyLiterals.push(getPropertyLiteral(model.prototype, propertyName))
   })
   const literal = `
     type ${model.name} {
-      \t${fieldLiterals.join('\n\t')}
+      \t${propertyLiterals.join('\n\t')}
     }
   `
   setLiteral(model.prototype, literal)

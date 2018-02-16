@@ -75,5 +75,5 @@ class A {
 }
 
 makeSchema(A, {
-  models: [B, AddUserInput, AddCreatorInput],
+  types: [B, AddUserInput, AddCreatorInput],
 })

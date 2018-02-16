@@ -16,28 +16,31 @@ describe('@Mutation', () => {
   it(`adds a mutation to target if with a parameter`, () => {
     class A { @Mutation(String) hello() { return '' }}
 
-    const mutation = Reflect.getMetadata('graphql:mutations', A.prototype).hello
+    const mutation = Reflect.getMetadata('graphql:properties', A.prototype).hello
     expect(mutation).toHaveProperty('nullable', false)
     expect(mutation).toHaveProperty('isList', false)
     expect(mutation).toHaveProperty('type', String)
+    expect(mutation).toHaveProperty('isMutation', true)
   })
 
   it(`adds a mutation to target if with a array parameter`, () => {
     class A { @Mutation([String]) hello() { return '' }}
 
-    const mutation = Reflect.getMetadata('graphql:mutations', A.prototype).hello
+    const mutation = Reflect.getMetadata('graphql:properties', A.prototype).hello
     expect(mutation).toHaveProperty('nullable', false)
     expect(mutation).toHaveProperty('isList', true)
     expect(mutation).toHaveProperty('type', String)
+    expect(mutation).toHaveProperty('isMutation', true)
   })
 
   it(`adds a mutation to target if with a returntype`, () => {
     class A { @Mutation hello(): String { return '' }}
 
-    const mutation = Reflect.getMetadata('graphql:mutations', A.prototype).hello
+    const mutation = Reflect.getMetadata('graphql:properties', A.prototype).hello
     expect(mutation).toHaveProperty('nullable', false)
     expect(mutation).toHaveProperty('isList', false)
     expect(mutation).toHaveProperty('type', String)
+    expect(mutation).toHaveProperty('isMutation', true)
   })
 
   it(`throws an error if without parameter or returntype`, () => {

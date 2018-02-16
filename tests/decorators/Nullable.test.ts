@@ -1,11 +1,11 @@
 import { Nullable } from '../../src'
-import { getFields } from '../../src/services'
+import { getProperties } from '../../src/services'
 
 describe('@Nullable', () => {
-  it('sets nullable a field', () => {
+  it('sets nullable a property', () => {
     class A { @Nullable a: any } 
  
-    const nullable = getFields(A.prototype)['a'].nullable
+    const nullable = getProperties(A.prototype)['a'].nullable
     expect(nullable).toBeTruthy()
   })
 })

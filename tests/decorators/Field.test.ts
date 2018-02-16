@@ -24,28 +24,31 @@ describe('@Field', () => {
   it(`adds a field to target if with a parameter`, () => {
     class A { @Field(String) hello() { return '' }}
 
-    const field = Reflect.getMetadata('graphql:fields', A.prototype).hello
+    const field = Reflect.getMetadata('graphql:properties', A.prototype).hello
     expect(field).toHaveProperty('nullable', false)
     expect(field).toHaveProperty('isList', false)
     expect(field).toHaveProperty('type', String)
+    expect(field).toHaveProperty('isMutation', false)
   })
 
   it(`adds a field to target if with a array parameter`, () => {
     class A { @Field([String]) hello() { return '' }}
 
-    const field = Reflect.getMetadata('graphql:fields', A.prototype).hello
+    const field = Reflect.getMetadata('graphql:properties', A.prototype).hello
     expect(field).toHaveProperty('nullable', false)
     expect(field).toHaveProperty('isList', true)
     expect(field).toHaveProperty('type', String)
+    expect(field).toHaveProperty('isMutation', false)
   })
 
   it(`adds a field to target if with a returntype`, () => {
     class A { @Field hello(): String { return '' }}
 
-    const field = Reflect.getMetadata('graphql:fields', A.prototype).hello
+    const field = Reflect.getMetadata('graphql:properties', A.prototype).hello
     expect(field).toHaveProperty('nullable', false)
     expect(field).toHaveProperty('isList', false)
     expect(field).toHaveProperty('type', String)
+    expect(field).toHaveProperty('isMutation', false)
   })
 
   it(`throws an error if without parameter or returntype`, () => {

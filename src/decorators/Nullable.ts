@@ -1,5 +1,5 @@
-import { setFieldOptions } from '../services'
+import { setPropertyOptions } from '../services'
 
-export function Nullable(prototype: any, propertyKey: string) {
-  setFieldOptions(prototype, propertyKey, { nullable: true })
+export function Nullable(prototype: any, propertyName: string) {
+  setPropertyOptions(prototype, propertyName, { nullable: true })
 }

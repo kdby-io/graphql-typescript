@@ -1,44 +1,38 @@
 import 'reflect-metadata'
-import { FieldDescriptor, FieldDescriptorDictionary } from '.'
+import { Property, PropertyDictionary } from '.'
 import { map } from 'lodash'
 
-export function createFieldDescriptor(prototype: any, propertyKey: string, descriptor?: PropertyDescriptor, options?: Partial<FieldDescriptor>) {
-  let field: Partial<FieldDescriptor> = {
-    nullable: false,
-    isList: false,
-  }
+export function createProperty(prototype: any, propertyName: string, descriptor?: PropertyDescriptor, options?: Partial<Property>) {
+  const property: Partial<Property> = { nullable: false, isList: false, isMutation: false, ...options }
 
-  if (options && options.type) {
-    field = { ...field, ...options }
+  if (!(options && options.type)) {
+    const propertyType = Reflect.getMetadata('design:type', prototype, propertyName)
 
-  } else {
-    const fieldType = Reflect.getMetadata('design:type', prototype, propertyKey)
-
-    switch (fieldType.name) {
+    switch (propertyType.name) {
       // with resolver
       case 'Function':
-        const fieldReturnType = Reflect.getMetadata('design:returntype', prototype, propertyKey)
-        if (!fieldReturnType || fieldReturnType.name === 'Promise') {
-          throw new Error(`Specify field type of '${propertyKey}' in '${prototype.constructor.name}'. ex) @Field(String)`)
+        const propertyReturnType = Reflect.getMetadata('design:returntype', prototype, propertyName)
+        if (!propertyReturnType || propertyReturnType.name === 'Promise') {
+          throw new Error(`Specify field type of '${propertyName}' in '${prototype.constructor.name}'. ex) @Field(String)`)
         }
-        field.type = fieldReturnType
+        property.type = propertyReturnType
         break
 
       case 'Array':
       case 'Object':
-        throw new Error(`Specify field type of '${propertyKey}' in '${prototype.constructor.name}'. ex) @Field(String)`)
+        throw new Error(`Specify field type of '${propertyName}' in '${prototype.constructor.name}'. ex) @Field(String)`)
 
       default:
-        field.type = fieldType
+        property.type = propertyType
         break
     }
   }
 
   if (descriptor && descriptor.value) {
-    field.resolver = descriptor.value
+    property.resolver = descriptor.value
   }
 
-  return field as FieldDescriptor
+  return property as Property
 }
 
 
@@ -52,91 +46,52 @@ export function getLiteral(prototype: any): string {
 }
 
 
-export function addField(prototype: any, fieldName: string, field: FieldDescriptor) {
-  const fields = getFields(prototype)
-  fields[fieldName] = field
-  setFields(prototype, fields)
+export function addProperty(prototype: any, propertyName: string, property: Property) {
+  const properties = getProperties(prototype)
+  properties[propertyName] = property
+  setProperties(prototype, properties)
 }
 
 
-function setFields(prototype: any, fields: { [fieldName: string]: FieldDescriptor }) {
-  Reflect.defineMetadata('graphql:fields', fields, prototype)
+function setProperties(prototype: any, properties: PropertyDictionary) {
+  Reflect.defineMetadata('graphql:properties', properties, prototype)
 }
 
 
-export function getFields(prototype: any): FieldDescriptorDictionary {
-  return Reflect.getMetadata('graphql:fields', prototype) || {}
+export function getProperties(prototype: any): PropertyDictionary {
+  return Reflect.getMetadata('graphql:properties', prototype) || {}
 }
 
 
-export function setFieldOptions(
-  prototype: any,
-  fieldName: string,
-  options: Partial<FieldDescriptor>
-) {
-  const fields = getFields(prototype)
-  fields[fieldName] = {
-    ...fields[fieldName],
+export function setPropertyOptions(prototype: any, propertyName: string, options: Partial<Property>) {
+  const properties = getProperties(prototype)
+  properties[propertyName] = {
+    ...properties[propertyName],
     ...options,
   }
-  setFields(prototype, fields)
+  setProperties(prototype, properties)
 }
 
 
-function setMutations(prototype: any, mutations: FieldDescriptorDictionary) {
-  Reflect.defineMetadata('graphql:mutations', mutations, prototype)
-}
-
-
-export function getMutations(prototype: any): FieldDescriptorDictionary {
-  return Reflect.getMetadata('graphql:mutations', prototype) || {}
-}
-
-
-export function addMutation(prototype: any, mutationName: string, mutation: FieldDescriptor) {
-  const mutations = getMutations(prototype)
-  mutations[mutationName] = mutation
-  setMutations(prototype, mutations)
-}
-
-
-export function getFieldLiteral(prototype: any, fieldName: string): string {
-  const field = getFields(prototype)[fieldName]
+export function getPropertyLiteral(prototype: any, propertyName: string): string {
+  const property = getProperties(prototype)[propertyName]
   return `${
-    fieldName
+    property.isMutation ? '\n    extend type Mutation {\n\t' : ''
   }${
-    getArgumentLiterals(prototype, fieldName)
-  }: ${
-    field.isList ? '[' : ''
-  }${
-    field.type.name
-  }${
-    field.isList ? ']' : ''
-  }${
-    field.nullable ? '' : '!'
-  }`
-}
-
-
-export function getMutationLiteral(prototype: any, mutationName: string) {
-  const mutation = getMutations(prototype)[mutationName]
-  return `
-    extend type Mutation {
-      \t${
-        mutationName
+        propertyName 
       }${
-        getArgumentLiterals(prototype, mutationName)
+        getArgumentLiterals(prototype, propertyName)
       }: ${
-        mutation.isList ? '[' : ''
+        property.isList ? '[' : ''
       }${
-        mutation.type.name
+        property.type.name
       }${
-        mutation.isList ? ']' : ''
+        property.isList ? ']' : ''
       }${
-        mutation.nullable ? '' : '!'
-      }
-    }
-  `
+        property.nullable ? '' : '!'
+  }${
+    property.isMutation ? '\n    }' : ''
+  }`
 }
 
 
@@ -144,9 +99,9 @@ function getArgumentLiterals(prototype: any, resolverName: string) {
   const argumentType = getArgumentType(prototype, resolverName)
   if (!argumentType) return ''
 
-  const argumentFields = getFields(argumentType.prototype)
-  const argumentLiterals = map(argumentFields, (_: FieldDescriptor, argumentName) => {
-    return getFieldLiteral(argumentType.prototype, argumentName)
+  const argumentProperties = getProperties(argumentType.prototype)
+  const argumentLiterals = map(argumentProperties, (_: Property, argumentName) => {
+    return getPropertyLiteral(argumentType.prototype, argumentName)
   })
   return argumentLiterals.length ? `(${argumentLiterals.join(', ')})` : ''
 }

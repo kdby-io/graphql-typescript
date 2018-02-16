@@ -36,7 +36,7 @@ class UnboxArguments {
 }
 
 const schema = makeSchema(Query, {
-  model: [Size, Box]
+  types: [Size, Box]
 })
 ```
 
@@ -214,9 +214,9 @@ const schema = makeSchema(Query, {
 
 ```ts
 makeSchema(rootType, {
-  models: [ ... ]
+  types: [ ... ]
 })
 ```
 
 - `rootType`: A root type of schema
-- `models`: Rest of types except a root type
+- `types`: Rest of types except a root type

@@ -2,33 +2,33 @@ import { makeExecutableSchema } from 'graphql-tools'
 import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
 import { omit } from 'lodash'
 
-import { chop } from './factory'
+import { createSchemaDescriptor } from './factory'
 import { GraphQLSchema } from 'graphql';
 
 type Options = TypeArrayOption & RestOptions
-type TypeArrayOption = { models: Function[] }
+type TypeArrayOption = { types: Function[] }
 type RestOptions = Pick<IExecutableSchemaDefinition, 'connectors'|'logger'|'allowUndefinedInResolve'|'resolverValidationOptions'|'directiveResolvers'>
 
-export const makeSchema = (rootModel: Function, options: Options): GraphQLSchema => {
-  const { types, mutations, resolvers } = chop([rootModel, ...options.models])
+export const makeSchema = (rootType: Function, options: Options): GraphQLSchema => {
+  const { literals, mutations, resolvers } = createSchemaDescriptor([rootType, ...options.types])
   const hasMutations = Object.keys(mutations).length !== 0
 
   const schema = `
     schema {
-      query: ${rootModel.name}
+      query: ${rootType.name}
       ${hasMutations ? 'mutation: Mutation' : ''}
     }
     ${hasMutations ? 'type Mutation' : ''}
   `
 
   const schemaDefinition: any = {
-    typeDefs: [schema, ...types],
+    typeDefs: [schema, ...literals],
     resolvers: {
-      [rootModel.name]: resolvers[rootModel.name],
+      [rootType.name]: resolvers[rootType.name],
       Mutation: mutations,
-      ...omit(resolvers, rootModel.name),
+      ...omit(resolvers, rootType.name),
     },
-    ...omit(options, 'models'),
+    ...omit(options, 'types'),
   }
 
   if (!hasMutations) {

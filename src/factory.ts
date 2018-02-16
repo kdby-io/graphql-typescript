@@ -1,47 +1,52 @@
 import { reduce } from 'lodash'
-import { IResolvers } from 'graphql-tools/dist/Interfaces'
-import { getLiteral, getFields, getMutations, getMutationLiteral } from './services'
-import { FieldDescriptor } from '.'
+import { getLiteral, getProperties, getPropertyLiteral } from './services'
 
-export interface Chopped {
-  types: string[]
-  resolvers: { [model: string]: { [property: string]: IResolvers } }
-  mutations: { [model: string]: IResolvers }
+interface TypeDescriptor {
+  name: string
+  literals: string[]
+  resolvers: { [propertyName: string]: Function }
+  mutations: { [mutationName: string]: Function }
+}
+export interface SchemaDescriptor {
+  literals: string[]
+  resolvers: { [modelName: string]: { [propertyName: string]: Function } }
+  mutations: { [mutationName: string]: Function }
 }
 
-// TODO: Rename
-// TODO: Refactor
-export const chop = (models: any[]) => {
-  const result: Chopped = models.reduce((result: Chopped, model) => {
-    const fields = getFields(model.prototype)
-    const resolvers = reduce(fields, (resolvers: any, field: FieldDescriptor, fieldName) => {
-      if (field.resolver) {
-        resolvers[fieldName] = field.resolver
-      }
-      return resolvers
-    }, {})
-    result.resolvers[model.name] = resolvers
 
-    const literals = getLiteral(model.prototype)
-    if (literals) result.types.push(literals)
+const createTypeDescriptor = (type: any) => {
+  const properties = getProperties(type.prototype)
+  const typeDescriptor: TypeDescriptor = {
+    name: type.name,
+    literals: [getLiteral(type.prototype)],
+    resolvers: {},
+    mutations: {},
+  }
 
-    const mutations = getMutations(model.prototype)
-    const mutationResolvers = reduce(mutations, (mutationResolvers: any, field: FieldDescriptor, mutationName) => {
-      mutationResolvers[mutationName] = field.resolver
-      return mutationResolvers
-    }, {})
-    result.mutations = { ...result.mutations, ...mutationResolvers }
+  return reduce(properties, (descriptor, property, propertyName) => {
+    if (property.resolver)
+      descriptor[property.isMutation ? 'mutations' : 'resolvers'][propertyName] = property.resolver
+    if (property.isMutation)
+      descriptor.literals.push(getPropertyLiteral(type.prototype, propertyName))
 
-    const mutationLiterals = reduce(mutations, (literals: string[], _: FieldDescriptor, mutationName) => {
-      const literal = getMutationLiteral(model.prototype, mutationName)
-      literals.push(literal)
-      return literals
-    }, [])
-    result.types = [...result.types, ...mutationLiterals]
+    return descriptor
+  }, typeDescriptor)
+}
 
-    return result
-  },
-  { types: [], resolvers: {}, mutations: {} })
 
-  return result
+export const createSchemaDescriptor = (types: Function[]) => {
+  const schemaDescriptor: SchemaDescriptor = {
+    literals: [],
+    resolvers: {},
+    mutations: {},
+  }
+
+  return reduce(types, (descriptor, type) => {
+    const modelDescriptor = createTypeDescriptor(type)
+    schemaDescriptor.literals.push(...modelDescriptor.literals)
+    schemaDescriptor.resolvers[modelDescriptor.name] = modelDescriptor.resolvers
+    schemaDescriptor.mutations = { ...schemaDescriptor.mutations, ...modelDescriptor.mutations }
+
+    return descriptor
+  }, schemaDescriptor)
 }

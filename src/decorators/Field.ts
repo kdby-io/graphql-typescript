@@ -1,34 +1,35 @@
-import { FieldDescriptor } from '..'
-import { addField, createFieldDescriptor } from '../services'
+import { Property } from '..'
+import { addProperty, createProperty } from '../services'
 
-export function Field(prototype: any, propertyKey: string, descriptor?: PropertyDescriptor): void
+export function Field(prototype: any, propertyName: string, descriptor?: PropertyDescriptor): void
 export function Field(type: Function | [Function]): Function
 export function Field(...args: any[]): Function | void {
 
-  let type: Function | [Function]
-  let options: Partial<FieldDescriptor>
+  const options: Partial<Property> = {
+    isMutation: false
+  }
 
   if(args.length === 1) {
     switch (args[0].constructor) {
       
       // with a type argument
       case Function:
-        type = args[0] as Function
-        options = { type }
+        options.type = args[0]
 
-        return (prototype: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-          const field = createFieldDescriptor(prototype, propertyKey, descriptor, options)
-          addField(prototype, propertyKey, field)
+        return (prototype: any, propertyName: string, descriptor: PropertyDescriptor) => {
+          const field = createProperty(prototype, propertyName, descriptor, options)
+          addProperty(prototype, propertyName, field)
         }
+
 
       // with a array type argument
       case Array:
-        type = args[0] as [Function]
-        options = { type: type[0], isList: true }
+        options.type = args[0][0]
+        options.isList = true
 
-        return (prototype: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-          const field = createFieldDescriptor(prototype, propertyKey, descriptor, options)
-          addField(prototype, propertyKey, field)
+        return (prototype: any, propertyName: string, descriptor: PropertyDescriptor) => {
+          const field = createProperty(prototype, propertyName, descriptor, options)
+          addProperty(prototype, propertyName, field)
         }
 
 
@@ -41,7 +42,7 @@ export function Field(...args: any[]): Function | void {
   // without argument
   } else {
     const [prototype, propertyKey, descriptor] = args
-    const field = createFieldDescriptor(prototype, propertyKey, descriptor)
-    addField(prototype, propertyKey, field)
+    const field = createProperty(prototype, propertyKey, descriptor, options)
+    addProperty(prototype, propertyKey, field)
   }
 }

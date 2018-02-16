@@ -2,17 +2,11 @@ import 'reflect-metadata'
 import {
   getLiteral,
   setLiteral,
-  getFields,
-  addField,
-  getMutations,
-  addMutation,
-  getFieldLiteral,
-  getMutationLiteral,
+  getProperties,
+  addProperty,
+  getPropertyLiteral,
 } from '../src/services'
 import { String } from '../src'
-
-describe('createField', () => {
-})
 
 describe('setLiteral', () => {
   it(`sets literal of target`, () => {
@@ -34,165 +28,86 @@ describe('getLiteral', () => {
   })
 })
 
-describe('addField', () => {
-  it(`adds a field of target`, () => {
+
+describe('addProperty', () => {
+  it(`adds a property of target`, () => {
     class A {}
-    addField(A.prototype, 'hello', { isList: false, nullable: false, type: String })
-    const field = getFields(A.prototype).hello
+    addProperty(A.prototype, 'hello', { isList: false, nullable: false, type: String, isMutation: false })
+    const field = getProperties(A.prototype).hello
 
     expect(field).toHaveProperty('isList', false)
     expect(field).toHaveProperty('nullable', false)
     expect(field).toHaveProperty('type', String)
+    expect(field).toHaveProperty('isMutation', false)
   })
 })
 
-describe('getFields', () => {
-  it(`returns fields of target`, () => {
+
+describe('getProperties', () => {
+  it(`returns properties of target`, () => {
     class A {}
     Reflect.defineMetadata(
-      'graphql:fields',
-      { hello: { isList: false, nullable: false, type: String } },
+      'graphql:properties',
+      { hello: { isList: false, nullable: false, type: String, isMutation: false } },
       A.prototype
     )
-    const field = getFields(A.prototype).hello
+    const field = getProperties(A.prototype).hello
 
     expect(field).toHaveProperty('isList', false)
     expect(field).toHaveProperty('nullable', false)
     expect(field).toHaveProperty('type', String)
+    expect(field).toHaveProperty('isMutation', false)
   })
 })
 
-describe('getMutations', () => {
-  it(`returns mutations of target`, () => {
+
+describe('getPropertyLiteral', () => {
+  it('returns a property literal', () => {
     class A {}
-    const resolver = () => {}
-    Reflect.defineMetadata(
-      'graphql:mutations',
-      { hello: { isList: false, nullable: false, type: String, resolver } },
-      A.prototype
-    )
+    const property = { type: String, isList: false, nullable: false, isMutation: false }
+    Reflect.defineMetadata('graphql:properties', { hello: property }, A.prototype)
 
-    const mutation = getMutations(A.prototype).hello
-    expect(mutation).toHaveProperty('isList', false)
-    expect(mutation).toHaveProperty('nullable', false)
-    expect(mutation).toHaveProperty('type', String)
-    expect(mutation).toHaveProperty('resolver', resolver)
-  })
-})
-
-describe('addMutation', () => {
-  it(`adds mutations of target`, () => {
-    class A {}
-    const resolver = () => {}
-    addMutation(A.prototype, 'hello', { isList: false, type: String, resolver })
-
-    const mutation = Reflect.getMetadata('graphql:mutations', A.prototype).hello
-    expect(mutation).toHaveProperty('isList', false)
-    expect(mutation).toHaveProperty('isList', false)
-    expect(mutation).toHaveProperty('isList', false)
-    expect(mutation).toHaveProperty('isList', false)
-  })
-})
-
-describe('getFieldLiteral', () => {
-  it('returns a field literal', () => {
-    class A {}
-    const fieldDescriptor = { type: String, isList: false, nullable: false }
-    Reflect.defineMetadata('graphql:fields', { hello: fieldDescriptor }, A.prototype)
-
-    const literal = getFieldLiteral(A.prototype, 'hello')
+    const literal = getPropertyLiteral(A.prototype, 'hello')
     expect(literal).toMatch(/hello: String!/)
   })
 
-  it('returns a list type field literal if isList is true', () => {
+  it('returns a list type property literal if isList is true', () => {
     class A {}
-    const fieldDescriptor = { type: String, isList: true, nullable: false }
-    Reflect.defineMetadata('graphql:fields', { hello: fieldDescriptor }, A.prototype)
+    const property = { type: String, isList: true, nullable: false, isMutation: false }
+    Reflect.defineMetadata('graphql:properties', { hello: property }, A.prototype)
 
-    const literal = getFieldLiteral(A.prototype, 'hello')
+    const literal = getPropertyLiteral(A.prototype, 'hello')
     expect(literal).toBe(`hello: [String]!`)
   })
 
-  it('returns a nullable type field literal if nullable is true', () => {
+  it('returns a nullable type property literal if nullable is true', () => {
     class A {}
-    const fieldDescriptor = { type: String, isList: false, nullable: true }
-    Reflect.defineMetadata('graphql:fields', { hello: fieldDescriptor }, A.prototype)
+    const property = { type: String, isList: false, nullable: true, isMutation: false }
+    Reflect.defineMetadata('graphql:properties', { hello: property }, A.prototype)
 
-    const literal = getFieldLiteral(A.prototype, 'hello')
+    const literal = getPropertyLiteral(A.prototype, 'hello')
     expect(literal).toBe(`hello: String`)
   })
 
-  it('returns a field literal with parameter if resolver is exists', () => {
+  it('returns a property literal with parameter if resolver is exists', () => {
     class Arguments {}
-    Reflect.defineMetadata(
-      'graphql:fields',
-      { hello: { isList: false, nullable: false, type: String } },
-      Arguments.prototype
-    )
+    const argumentProperty = { isList: false, nullable: false, type: String, isMutation: false }
+    Reflect.defineMetadata('graphql:properties', { hello: argumentProperty }, Arguments.prototype)
     class A {}
-    Reflect.defineMetadata(
-      'graphql:fields',
-      { hello: { isList: false, nullable: false, type: String, resolver: () => {} } },
-      A.prototype
-    )
+    const property = { isList: false, nullable: false, type: String, resolver: () => {}, isMutation: false }
+    Reflect.defineMetadata('graphql:properties', { hello: property }, A.prototype)
     Reflect.defineMetadata('design:paramtypes', [Object, Arguments], A.prototype, 'hello')
 
-    const literal = getFieldLiteral(A.prototype, 'hello')
+    const literal = getPropertyLiteral(A.prototype, 'hello')
     expect(literal).toMatch(/hello\(hello: String!\): String!/)
   })
-})
 
-describe('getMutationLiteral', () => {
-  it('returns a mutation literal', () => {
+  it('returns a property literal if it is a mutation', () => {
     class A {}
-    const mutationDescriptor = {
-      type: String,
-      isList: false,
-      nullable: false,
-      resolver: () => {},
-    }
-    Reflect.defineMetadata('graphql:mutations', { hello: mutationDescriptor }, A.prototype)
+    const property = { type: String, isList: false, nullable: false, resolver: () => {}, isMutation: true }
+    Reflect.defineMetadata('graphql:properties', { hello: property }, A.prototype)
 
-    const literal = getMutationLiteral(A.prototype, 'hello')
+    const literal = getPropertyLiteral(A.prototype, 'hello')
     expect(literal).toMatch(/extend type Mutation \{(.|\n)*hello: String!(.|\n)*\}/)
-  })
-
-  it('returns a list type mutation literal if isList is true', () => {
-    class A {}
-    const mutationDescriptor = { type: String, isList: true, nullable: false, resolver: () => {} }
-    Reflect.defineMetadata('graphql:mutations', { hello: mutationDescriptor }, A.prototype)
-
-    const literal = getMutationLiteral(A.prototype, 'hello')
-    expect(literal).toMatch(/extend type Mutation \{(.|\n)*hello: \[String\]!(.|\n)*\}/)
-  })
-
-  it('returns a nullable type mutation literal if nullable is true', () => {
-    class A {}
-    const mutationDescriptor = { type: String, isList: false, nullable: true, resolver: () => {} }
-    Reflect.defineMetadata('graphql:mutations', { hello: mutationDescriptor }, A.prototype)
-
-    const literal = getMutationLiteral(A.prototype, 'hello')
-    expect(literal).toMatch(/extend type Mutation \{(.|\n)*hello: String(.|\n)*\}/)
-  })
-
-  it('returns a mutation literal with parameter if resolver is exists', () => {
-    class Arguments {}
-    Reflect.defineMetadata(
-      'graphql:fields',
-      { hello: { isList: false, nullable: false, type: String } },
-      Arguments.prototype
-    )
-    class A {}
-    Reflect.defineMetadata(
-      'graphql:mutations',
-      { hello: { isList: false, nullable: false, type: String, resolver: () => {} } },
-      A.prototype
-    )
-    Reflect.defineMetadata('design:paramtypes', [Object, Arguments], A.prototype, 'hello')
-
-    const literal = getMutationLiteral(A.prototype, 'hello')
-    expect(literal).toMatch(
-      /extend type Mutation \{(.|\n)*hello\(hello: String!\): String!(.|\n)*\}/
-    )
   })
 })

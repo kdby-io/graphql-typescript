@@ -1,19 +1,19 @@
-import { setLiteral, getFields, getFieldLiteral } from '../services'
+import { setLiteral, getProperties, getPropertyLiteral } from '../services'
 import { map } from 'lodash'
-import { FieldDescriptor } from '..'
+import { Property } from '..'
 
 // Class Decorator
 export function Input(model: Function) {
-  const fields = getFields(model.prototype)
-  const fieldLiterals = map(fields, (field: FieldDescriptor, fieldName) => {
-    if (field.resolver) {
+  const properties = getProperties(model.prototype)
+  const propertyLiterals = map(properties, (property: Property, propertyName) => {
+    if (property.resolver) {
       throw new Error('An Input must have only scalar type fields')
     }
-    return getFieldLiteral(model.prototype, fieldName)
+    return getPropertyLiteral(model.prototype, propertyName)
   })
   const literal = `
     input ${model.name} {
-      \t${fieldLiterals.join('\n\t')}
+      \t${propertyLiterals.join('\n\t')}
     }
   `
   setLiteral(model.prototype, literal)

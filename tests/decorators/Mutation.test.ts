@@ -43,6 +43,14 @@ describe('@Mutation', () => {
     expect(mutation).toHaveProperty('isMutation', true)
   })
 
+  it(`throws an error if with a wrong argument`, () => {
+    try {
+      class A { @Mutation({} as any) hello() { }} A
+    } catch (e) {
+      expect(e.message).toBe(`A argument of @Mutation must be a type or a array type`)
+    }
+  })
+
   it(`throws an error if without parameter or returntype`, () => {
     try {
       class A { @Mutation hello() { }} A

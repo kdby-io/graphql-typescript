@@ -51,6 +51,14 @@ describe('@Field', () => {
     expect(field).toHaveProperty('isMutation', false)
   })
 
+  it(`throws an error if with a wrong argument`, () => {
+    try {
+      class A { @Field({} as any) hello() { }} A
+    } catch (e) {
+      expect(e.message).toBe(`A argument of @Field must be a type or a array type`)
+    }
+  })
+
   it(`throws an error if without parameter or returntype`, () => {
     try {
       class A { @Field hello() { }} A

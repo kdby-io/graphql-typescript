@@ -1,11 +1,16 @@
-import { Nullable } from '../../src'
-import { getProperties } from '../../src/services'
+import { Type, ID, Field, Nullable } from '../../src'
+import { getTypeMetadata } from '../../src/services'
 
 describe('@Nullable', () => {
   it('sets nullable a property', () => {
-    class A { @Nullable a: any } 
+    @Type
+    class A {
+      @Nullable
+      @Field(() => ID)
+      a: any
+    } 
  
-    const nullable = getProperties(A.prototype)['a'].nullable
+    const nullable = getTypeMetadata(A.prototype).fieldMetadataMap['a'].nullable
     expect(nullable).toBeTruthy()
   })
 })

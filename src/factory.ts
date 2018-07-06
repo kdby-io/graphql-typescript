@@ -1,52 +1,52 @@
 import { reduce } from 'lodash'
-import { getLiteral, getProperties, getPropertyLiteral } from './services'
+import { getTypeMetadata, getFieldLiteral } from './services'
 
-interface TypeDescriptor {
+interface TypeStore {
   name: string
   literals: string[]
-  resolvers: { [propertyName: string]: Function }
+  resolvers: { [fieldName: string]: Function }
   mutations: { [mutationName: string]: Function }
 }
-export interface SchemaDescriptor {
+export interface SchemaStore {
   literals: string[]
-  resolvers: { [modelName: string]: { [propertyName: string]: Function } }
+  resolvers: { [typeName: string]: { [fieldName: string]: Function } }
   mutations: { [mutationName: string]: Function }
 }
 
 
-const createTypeDescriptor = (type: any) => {
-  const properties = getProperties(type.prototype)
-  const typeDescriptor: TypeDescriptor = {
+const createTypeStore = (type: any) => {
+  const typeMetadata = getTypeMetadata(type.prototype)
+  const typeStore: TypeStore = {
     name: type.name,
-    literals: [getLiteral(type.prototype)],
+    literals: [typeMetadata.getLiteral()],
     resolvers: {},
     mutations: {},
   }
 
-  return reduce(properties, (descriptor, property, propertyName) => {
-    if (property.resolver)
-      descriptor[property.isMutation ? 'mutations' : 'resolvers'][propertyName] = property.resolver
-    if (property.isMutation)
-      descriptor.literals.push(getPropertyLiteral(type.prototype, propertyName))
+  return reduce(typeMetadata.fieldMetadataMap, (store, fieldMetadata, fieldName) => {
+    if (fieldMetadata.resolver)
+      store[fieldMetadata.isMutation ? 'mutations' : 'resolvers'][fieldName] = fieldMetadata.resolver
+    if (fieldMetadata.isMutation)
+      store.literals.push(getFieldLiteral(type.prototype, fieldName))
 
-    return descriptor
-  }, typeDescriptor)
+    return store
+  }, typeStore)
 }
 
 
-export const createSchemaDescriptor = (types: Function[]) => {
-  const schemaDescriptor: SchemaDescriptor = {
+export const createSchemaStore = (types: Function[]) => {
+  const schemaStore: SchemaStore = {
     literals: [],
     resolvers: {},
     mutations: {},
   }
 
-  return reduce(types, (descriptor, type) => {
-    const modelDescriptor = createTypeDescriptor(type)
-    schemaDescriptor.literals.push(...modelDescriptor.literals)
-    schemaDescriptor.resolvers[modelDescriptor.name] = modelDescriptor.resolvers
-    schemaDescriptor.mutations = { ...schemaDescriptor.mutations, ...modelDescriptor.mutations }
+  return reduce(types, (store, type) => {
+    const typeStore = createTypeStore(type)
+    schemaStore.literals.push(...typeStore.literals)
+    schemaStore.resolvers[typeStore.name] = typeStore.resolvers
+    schemaStore.mutations = { ...schemaStore.mutations, ...typeStore.mutations }
 
-    return descriptor
-  }, schemaDescriptor)
+    return store
+  }, schemaStore)
 }

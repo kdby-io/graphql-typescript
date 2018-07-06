@@ -1,10 +1,9 @@
 import { String, Field } from '../../src'
+import { TypeMetadata } from '../../src/metadata/TypeMetadata';
 
 // right
-// @Field hello: String
 // @Field(String) hello: any
 // @Field([String]) hello: any
-// @Field hello(_, args: Argument): String {}
 // @Field(String) hello(_, args: Argument) {}
 // @Field([String]) hello(_, args: Argument) {}
 
@@ -19,35 +18,32 @@ import { String, Field } from '../../src'
 // @Field hello(_, args: Argument): [String] {}
 // @Field() hello(_, args: Argument) {}
 // @Field([]) hello(_, args: Argument) {}
+// @Field hello: String
+// @Field hello(_, args: Argument): String {}
 
 describe('@Field', () => {
   it(`adds a field to target if with a parameter`, () => {
-    class A { @Field(String) hello() { return '' }}
+    class A {
+      @Field(() => String)
+      hello() { return '' }
+    }
 
-    const field = Reflect.getMetadata('graphql:properties', A.prototype).hello
+    const typeMetadata: TypeMetadata = Reflect.getMetadata('graphql:metadata', A.prototype)
+    const field = typeMetadata.fieldMetadataMap['hello']
     expect(field).toHaveProperty('nullable', false)
     expect(field).toHaveProperty('isList', false)
-    expect(field).toHaveProperty('type', String)
+    expect(field.typeFunc()).toBe(String)
     expect(field).toHaveProperty('isMutation', false)
   })
 
   it(`adds a field to target if with a array parameter`, () => {
-    class A { @Field([String]) hello() { return '' }}
+    class A { @Field(() => [String]) hello() { return '' }}
 
-    const field = Reflect.getMetadata('graphql:properties', A.prototype).hello
+    const typeMetadata: TypeMetadata = Reflect.getMetadata('graphql:metadata', A.prototype)
+    const field = typeMetadata.fieldMetadataMap['hello']
     expect(field).toHaveProperty('nullable', false)
     expect(field).toHaveProperty('isList', true)
-    expect(field).toHaveProperty('type', String)
-    expect(field).toHaveProperty('isMutation', false)
-  })
-
-  it(`adds a field to target if with a returntype`, () => {
-    class A { @Field hello(): String { return '' }}
-
-    const field = Reflect.getMetadata('graphql:properties', A.prototype).hello
-    expect(field).toHaveProperty('nullable', false)
-    expect(field).toHaveProperty('isList', false)
-    expect(field).toHaveProperty('type', String)
+    expect(field.typeFunc()).toHaveProperty('0', String)
     expect(field).toHaveProperty('isMutation', false)
   })
 
@@ -55,31 +51,7 @@ describe('@Field', () => {
     try {
       class A { @Field({} as any) hello() { }} A
     } catch (e) {
-      expect(e.message).toBe(`A argument of @Field must be a type or a array type`)
-    }
-  })
-
-  it(`throws an error if without parameter or returntype`, () => {
-    try {
-      class A { @Field hello() { }} A
-    } catch (e) {
-      expect(e.message).toBe(`Specify field type of 'hello' in 'A'. ex) @Field(String)`)
-    }
-  })
-
-  it(`throws an error if with a array returntype`, () => {
-    try {
-      class A { @Field hello() { }} A
-    } catch (e) {
-      expect(e.message).toBe(`Specify field type of 'hello' in 'A'. ex) @Field(String)`)
-    }
-  })
-
-  it(`throws an error if with a object returntype`, () => {
-    try {
-      class A { @Field hello() { }} A
-    } catch (e) {
-      expect(e.message).toBe(`Specify field type of 'hello' in 'A'. ex) @Field(String)`)
+      expect(e.message).toBe(`A argument of @Field must be a function`)
     }
   })
 })

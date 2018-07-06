@@ -1,5 +1,5 @@
-import { setPropertyOptions } from '../services'
+import { getTypeMetadata } from '../services'
 
 export function Nullable(prototype: any, propertyName: string) {
-  setPropertyOptions(prototype, propertyName, { nullable: true })
+  getTypeMetadata(prototype).fieldMetadataMap[propertyName].setNullable()
 }

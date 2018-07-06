@@ -5,71 +5,71 @@ import {
   String, Boolean, ID, Int, Float,
   makeSchema,
 } from '../src'
+import { B } from './B';
 
-@Type
-class B {
-  @Field c: String
-  @Field a: String
-}
+// @Type
+// class B {
+//   @Field(() => String) c: string
+//   @Field(() => String) a: string
+// }
 
 @Input
 class AddUserInput {
-  @Field phone: String
+  @Field(() => String) phone: string
 }
 
 class AddUserArguments {
-  @Field email: String
-  @Field password: String
-  @Field input: AddUserInput
+  @Field(() => String) email: string
+  @Field(() => String) password: string
+  @Field(() => AddUserInput) input: AddUserInput
 }
 
 class EmptyArgument {}
 
 @Input
 class AddCreatorInput {
-  @Field phone: String
+  @Field(() => String) phone: string
 }
 
 @Input
 class AddCreatorArguments {
-  @Field email: String
-  @Field password: String
-  @Field options: AddCreatorInput
+  @Field(() => String) email: string
+  @Field(() => String) password: string
+  @Field(() => AddCreatorInput) options: AddCreatorInput
 }
 
 @Type
-class A {
-  @Field a: String // String!
-  @Field b: Boolean // Boolean!
-  @Field c: Int // String!
-  @Field d: ID // ID!
-  @Field e: Int // Int!
-  @Field f: Float // Float!
+export class A {
+  @Field(() => String) a: string
+  @Field(() => Boolean) b: boolean
+  @Field(() => String) c: string
+  @Field(() => ID) d: string
+  @Field(() => Int) e: number
+  @Field(() => Float) f: number
 
-  @Field(String) h: string // String!
-  @Field(String) i: number // String! (override)
-  @Field([ID]) j: string[] // [ID]!  배열은 이 방법 뿐임.
+  @Field(() => String) h: string // String!
+  @Field(() => String) i: number // String! (override)
+  @Field(() => [ID]) j: string[] // [ID]!  배열은 이 방법 뿐임.
   // @Field k: string[]  // EEEEEEEEEEEError.
 
-  @Field l: B // B!
-  @Field(B) m: B // B!
+  @Field(() => B) l: B
 
-  @Nullable @Field n?: String // String
+  @Nullable @Field(() => String) n?: string // String
 
   // resolver가 있는 field도 동일.
 
-  @Field([B])
-  z(_creator: string, _args: AddCreatorArguments, _req: Request): B[] {
+  @Field(() => [B])
+  z(_creator: string, _args: AddCreatorArguments, _req: any): B[] {
     return [new B()]
   }
 
-  @Mutation(B)
-  async y(_creator: A, _args: AddUserArguments, _req: Request) {
+  @Mutation(() => B)
+  async y(_creator: A, _args: AddUserArguments, _req: any) {
     return name
   }
 
-  @Mutation(B)
-  async x(_creator: A, _args: EmptyArgument, _req: Request) {
+  @Mutation(() => B)
+  async x(_creator: A, _args: EmptyArgument, _req: any) {
     return name
   }
 }

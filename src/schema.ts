@@ -2,7 +2,7 @@ import { makeExecutableSchema } from 'graphql-tools'
 import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
 import { omit } from 'lodash'
 
-import { createSchemaDescriptor } from './factory'
+import { createSchemaStore } from './factory'
 import { GraphQLSchema } from 'graphql';
 
 type Options = TypeArrayOption & RestOptions
@@ -10,7 +10,7 @@ type TypeArrayOption = { types: Function[] }
 type RestOptions = Pick<IExecutableSchemaDefinition, 'connectors'|'logger'|'allowUndefinedInResolve'|'resolverValidationOptions'|'directiveResolvers'>
 
 export const makeSchema = (rootType: Function, options: Options): GraphQLSchema => {
-  const { literals, mutations, resolvers } = createSchemaDescriptor([rootType, ...options.types])
+  const { literals, mutations, resolvers } = createSchemaStore([rootType, ...options.types])
   const hasMutations = Object.keys(mutations).length !== 0
 
   const schema = `
@@ -35,5 +35,6 @@ export const makeSchema = (rootType: Function, options: Options): GraphQLSchema 
     delete schemaDefinition.resolvers.Mutation
   }
 
+  console.log(literals)
   return makeExecutableSchema(schemaDefinition)
 }

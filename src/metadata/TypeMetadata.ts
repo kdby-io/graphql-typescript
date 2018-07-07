@@ -1,5 +1,3 @@
-import { forEach } from "lodash";
-import { getFieldLiteral } from "../services";
 import { FieldMetadata } from "./FieldMetadata";
 
 export type FieldMetadataMap = { [fieldName: string]: FieldMetadata }
@@ -25,15 +23,16 @@ export class TypeMetadata {
 
   getLiteral = () => {
     const fieldLiterals: string[] = []
-    forEach(this.fieldMetadataMap, (fieldMetadata, fieldName) => {
+    Object.values(this.fieldMetadataMap).forEach(fieldMetadata => {
       if (fieldMetadata.isMutation) return
-      fieldLiterals.push(getFieldLiteral(this.classPrototype, fieldName))
+      fieldLiterals.push(fieldMetadata.getLiteral())
     })
+
     const literal = `
       ${this.isInput ? 'input' : 'type'} ${this.classPrototype.constructor.name} {
       \t${fieldLiterals.join('\n\t')}
       }`
-    console.log(literal)
+    
     return literal
   }
 }

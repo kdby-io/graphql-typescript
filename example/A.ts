@@ -1,41 +1,30 @@
-import 'reflect-metadata'
-
 import {
   Type, Field, Nullable, Mutation, Input,
   String, Boolean, ID, Int, Float,
-  makeSchema,
 } from '../src'
 import { B } from './B';
 
-// @Type
-// class B {
-//   @Field(() => String) c: string
-//   @Field(() => String) a: string
-// }
-
 @Input
-class AddUserInput {
+export class YInput {
   @Field(() => String) phone: string
 }
-
-class AddUserArguments {
+class YArguments {
   @Field(() => String) email: string
   @Field(() => String) password: string
-  @Field(() => AddUserInput) input: AddUserInput
+  @Field(() => YInput) input: YInput
 }
 
 class EmptyArgument {}
 
 @Input
-class AddCreatorInput {
+export class ZInput {
   @Field(() => String) phone: string
 }
-
 @Input
-class AddCreatorArguments {
+class ZArguments {
   @Field(() => String) email: string
   @Field(() => String) password: string
-  @Field(() => AddCreatorInput) options: AddCreatorInput
+  @Field(() => ZInput) options: ZInput
 }
 
 @Type
@@ -59,21 +48,17 @@ export class A {
   // resolver가 있는 field도 동일.
 
   @Field(() => [B])
-  z(_creator: string, _args: AddCreatorArguments, _req: any): B[] {
+  z(_creator: string, _args: ZArguments, _req: any): B[] {
     return [new B()]
   }
 
   @Mutation(() => B)
-  async y(_creator: A, _args: AddUserArguments, _req: any) {
-    return name
+  async y(_creator: A, _args: YArguments, _req: any) {
+    return ''
   }
 
   @Mutation(() => B)
   async x(_creator: A, _args: EmptyArgument, _req: any) {
-    return name
+    return ''
   }
 }
-
-makeSchema(A, {
-  types: [B, AddUserInput, AddCreatorInput],
-})

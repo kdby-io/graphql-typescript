@@ -1,16 +1,16 @@
 import { makeExecutableSchema } from 'graphql-tools'
 import { IExecutableSchemaDefinition } from 'graphql-tools/dist/Interfaces';
-import { omit } from 'lodash'
 
-import { createSchemaStore } from './factory'
-import { GraphQLSchema } from 'graphql';
+import { TypeStructure } from './structures/TypeStructure';
+import { SchemaStructure } from './structures/SchemaStructure';
 
 type Options = TypeArrayOption & RestOptions
 type TypeArrayOption = { types: Function[] }
 type RestOptions = Pick<IExecutableSchemaDefinition, 'connectors'|'logger'|'allowUndefinedInResolve'|'resolverValidationOptions'|'directiveResolvers'>
 
-export const makeSchema = (rootType: Function, options: Options): GraphQLSchema => {
-  const { literals, mutations, resolvers } = createSchemaStore([rootType, ...options.types])
+export const makeSchema = (rootType: Function, { types }: Options) => {
+  const typeDefinitions = [rootType, ...types].map(type => new TypeStructure(type))
+  const { literals, mutations, resolvers } = new SchemaStructure(typeDefinitions)
   const hasMutations = Object.keys(mutations).length !== 0
 
   const schema = `
@@ -24,17 +24,14 @@ export const makeSchema = (rootType: Function, options: Options): GraphQLSchema 
   const schemaDefinition: any = {
     typeDefs: [schema, ...literals],
     resolvers: {
-      [rootType.name]: resolvers[rootType.name],
       Mutation: mutations,
-      ...omit(resolvers, rootType.name),
+      ...resolvers
     },
-    ...omit(options, 'types'),
   }
 
   if (!hasMutations) {
     delete schemaDefinition.resolvers.Mutation
   }
 
-  console.log(literals)
   return makeExecutableSchema(schemaDefinition)
 }

@@ -1,5 +1,5 @@
 import { Type, ID, Field, Nullable } from '../../src'
-import { getTypeMetadata } from '../../src/services'
+import { getTypeMetadata } from '../../src/storage';
 
 describe('@Nullable', () => {
   it('sets nullable a property', () => {

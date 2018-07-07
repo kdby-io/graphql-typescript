@@ -14,30 +14,59 @@ Define and build GraphQL Schemas using typed classes
 
 
 ```ts
-import { Type, Field, Mutation, String, Boolean, Int, makeSchema } from 'graphql-typescript'
+import { Type, Field, Nullable, Mutation, String, Boolean, Int, makeSchema } from 'graphql-typescript'
 
 @Type class Query {
-  @Field box: Box
-}
-
-@Type class Box {
-  @Field size: Size
-  @Mutation unbox(box: BoxModel, args: UnboxArguments, context: any): Boolean { ... }
-}
-
-@Type class Size {
-  @Field height: Int
-  @Field width: Int
-  @Field length: Int
+  @Field(() => Box) box: Box
 }
 
 class UnboxArguments {
-  @Field([String]) tools: String[]
+  @Field(() => [String]) tools: string[]
 }
+
+@Type class Box {
+  @Field(() => Size)
+  size: Size
+
+  @Nullable
+  @Field(() => String)
+  content: string
+
+  @Mutation(() => Boolean)
+  unbox(box: BoxModel, args: UnboxArguments, context: any) { ... }
+}
+
+@Type class Size {
+  @Field(() => Int) height: number
+  @Field(() => Int) width: number
+  @Field(() => Int) length: number
+}
+
 
 const schema = makeSchema(Query, {
   types: [Size, Box]
 })
+```
+
+```graphql
+type Query {
+  box: Box!
+}
+
+type Mutation {
+  unbox(tools: [String]!): Boolean!
+}
+
+type Box {
+  size: Size!
+  content: String
+}
+
+type Size {
+  height: Int!
+  width: Int!
+  length: Int!
+}
 ```
 
 
@@ -67,60 +96,75 @@ Adding `@Type` to a class definition defines [GraphQL object type](http://graphq
 
 ```ts
 @Type class Character {
-  @Field name: String
-  @Field([Episode]) appearsIn: Episode[]
+  @Field(() => String) name: string
+  @Field(() => [Episode]) appearsIn: Episode[]
 }
-// type Character {
-//   name: String!
-//   appearsIn: [Episode]!
-// }
+```
+
+```graphql
+type Character {
+  name: String!
+  appearsIn: [Episode]!
+}
 ```
 
 
 ### `@Field`
 
 Adding `@Field` to properties or methods of a `@Type` decorated class defines what fields it has.
-Property types or method return types must be one of the [Scalar types](#scalar-types) or your own GraphQL object types.
 
 ```ts
-@Field hello: String
-@Field hello(_:any, args: any, context: any): String { ... }
+@Type
+class Hello {
+  @Field(() => String)
+  a: string
+
+  @Field(() => [String])
+  b: string[]
+
+  @Field(() => String)
+  c(_:any, _args: any, context: any) { ... }
+}
 ```
 
-It is possible to specify field type by passing a single argument to `@Field`. In this case, a type annotation is ignored.
-
-```ts
-@Field(String) hello: any
-@Field(String) hello(_: any, args: any, context: any) { ... }
-```
-
-If a field is list type, a argument of `@Field` would be like below.
-
-```ts
-@Field([String]) hello: String[]
-@Field([String]) hello(_: any, args: any, context: any) { ... }
+```graphql
+type Hello {
+  a: String!
+  b: [String]!
+  c: String!
+}
 ```
 
 
 ### `@Mutation`
 
 Adding `@Mutation` to methods of a `@Type` decorated class defines a mutation. No matter which class it is in, it will come under [mutation type](http://graphql.org/learn/schema/#the-query-and-mutation-types).
-Method return types must be one of the [Scalar types](#scalar-types) or your own GraphQL object types.
 
 ```ts
-@Mutation hello(_: any, args: Argument, context: any): String { ... }
+class Argument {
+  @Field(() => [Int]) world: number[]
+}
+
+@Type
+class Hello {
+  @Mutation(() => String)
+  a(_: any, _args: any, context: any) { ... }
+
+  @Mutation(() => [String])
+  b(_: any, _args: any, context: any) { ... }
+
+  @Mutation(() => String)
+  c(_: any, args: Argument, context: any) { ... }
+}
 ```
 
-It is possible to specify mutation return type by passing a single argument to `@Mutation`. In this case, a type annotation is ignored.
-
-```ts
-@Mutation(String) hello(_: any, args: Argument, context: any) { ... }
-```
-
-If a mutation returns list type, a argument of `@Mutation` would be like below.
-
-```ts
-@Mutation([String]) hello(_: any, args: Argument, context: any) { ... }
+```graphql
+type Mutation {
+  ...
+  a: String!
+  b: [String]!
+  c(world: [Int]!): String!
+}
 ```
 
 
@@ -130,7 +174,17 @@ All fields and mutations are Non-null type by default.
 Adding `@Nullable to fields or mutations properties make it nullable.
 
 ```ts
-@Nullable @Field(String) hello: any
+@Type Hello {
+  @Nullable
+  @Field(() => String)
+  hello: string
+}
+```
+
+```graphql
+type Hello {
+  hello: String
+}
 ```
 
 
@@ -141,8 +195,15 @@ An input class can only have `@Field` properties.
 
 ```ts
 @Input class AddCharacterInput {
-  @Field name: String
-  @Field age: String
+  @Field(() => String) name: string
+  @Field(() => Int) age: number
+}
+```
+
+```graphql
+input AddCharacterInput {
+  name: String!
+  age: Int!
 }
 ```
 
@@ -161,38 +222,43 @@ All fields of GraphQL objects type can have arguments. Methods with `@Field` or 
 It needs to define a argument class. Because a purpose of this class is only typing arguments, there is no class decorator and it can have only `@Field` properties.
 
 ```ts
-@Type class Box {
-  @Mutation unbox(box: BoxModel, args: UnboxArguments): Boolean { ... }
+class UnboxArguments {
+  @Field(() => [String]) tools: string[]
 }
 
-class UnboxArguments {
-  @Field([String]) tools: String[]
+@Type class Box {
+  @Mutation(() => Boolean) unbox(box: BoxModel, args: UnboxArguments) { ... }
 }
 ```
 
-Then request query can be like below.
-
 ```graphql
-query {
-  box {
-    unbox(tools: ["pen", "pencil"])
-  }
+type Mutation{
+  unbox(tools: [String]!): Boolean
 }
 ```
 
 To use input type in argument, do like below.
 
 ```ts
-@Type class Box {
-  @Mutation unbox(box: BoxModel, args: UnboxArguments): Boolean { ... }
-}
-
 @Input class UnboxInput {
-  @Field([String]) tools: String[]
+  @Field(() => [String]) tools: string[]
+}
+class UnboxArguments {
+  @Field(() => UnboxInput) inputs: UnboxInput
 }
 
-class UnboxArguments {
-  @Field inputs: UnboxInput
+@Type class Box {
+  @Mutation(() => Boolean) unbox(box: BoxModel, args: UnboxArguments) { ... }
+}
+```
+
+```graphql
+input UnboxInput {
+  tools: [String]!
+}
+
+type Mutation{
+  unbox(inputs: UnboxInput!): Boolean
 }
 ```
 

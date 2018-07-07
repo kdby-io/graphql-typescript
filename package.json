@@ -1,6 +1,6 @@
 {
   "name": "graphql-typescript",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -27,9 +27,7 @@
     "url": "https://github.com/vichssoise/graphql-typescript.git"
   },
   "devDependencies": {
-    "@types/graphql": "^0.12.3",
     "@types/jest": "^22.1.2",
-    "@types/lodash": "^4.14.102",
     "@types/node": "^9.4.4",
     "coveralls": "^3.0.0",
     "jest": "^22.2.2",
@@ -39,9 +37,11 @@
     "typescript": "^2.7.1"
   },
   "dependencies": {
-    "graphql": "^0.13.0",
+    "graphql": "^0.13.2",
     "graphql-tools": "^2.20.2",
-    "lodash": "^4.17.5",
     "reflect-metadata": "^0.1.12"
+  },
+  "peerDependencies": {
+    "graphql": "^0.13.2"
   }
 }

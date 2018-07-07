@@ -1,5 +1,5 @@
 import { Type, Field, String } from "../src";
-import { A } from "./playground";
+import { A } from "./A";
 
 @Type
 export class B {

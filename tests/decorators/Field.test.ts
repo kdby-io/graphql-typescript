@@ -1,25 +1,5 @@
 import { String, Field } from '../../src'
-import { TypeMetadata } from '../../src/metadata/TypeMetadata';
-
-// right
-// @Field(String) hello: any
-// @Field([String]) hello: any
-// @Field(String) hello(_, args: Argument) {}
-// @Field([String]) hello(_, args: Argument) {}
-
-// // wrong
-// @Field hello: any
-// @Field hello: { hello: 'world' }
-// @Field hello: [String]
-// @Field() hello: any
-// @Field([]) hello: any
-// @Field hello(_, args: Argument) {}
-// @Field hello(_, args: Argument): { hello: 'world' } {}
-// @Field hello(_, args: Argument): [String] {}
-// @Field() hello(_, args: Argument) {}
-// @Field([]) hello(_, args: Argument) {}
-// @Field hello: String
-// @Field hello(_, args: Argument): String {}
+import { getTypeMetadata } from '../../src/storage';
 
 describe('@Field', () => {
   it(`adds a field to target if with a parameter`, () => {
@@ -28,7 +8,7 @@ describe('@Field', () => {
       hello() { return '' }
     }
 
-    const typeMetadata: TypeMetadata = Reflect.getMetadata('graphql:metadata', A.prototype)
+    const typeMetadata = getTypeMetadata(A.prototype)
     const field = typeMetadata.fieldMetadataMap['hello']
     expect(field).toHaveProperty('nullable', false)
     expect(field).toHaveProperty('isList', false)
@@ -39,7 +19,7 @@ describe('@Field', () => {
   it(`adds a field to target if with a array parameter`, () => {
     class A { @Field(() => [String]) hello() { return '' }}
 
-    const typeMetadata: TypeMetadata = Reflect.getMetadata('graphql:metadata', A.prototype)
+    const typeMetadata = getTypeMetadata(A.prototype)
     const field = typeMetadata.fieldMetadataMap['hello']
     expect(field).toHaveProperty('nullable', false)
     expect(field).toHaveProperty('isList', true)

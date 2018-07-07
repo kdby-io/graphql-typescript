@@ -1,23 +1,11 @@
 import { String, Mutation } from '../../src'
-import { TypeMetadata } from '../../src/metadata/TypeMetadata';
-
-// right
-// @Mutation(String) hello(_, args: Argument) {}
-// @Mutation([String]) hello(_, args: Argument) {}
-
-// // wrong
-// @Mutation hello(_, args: Argument) {}
-// @Mutation hello(_, args: Argument): { hello: 'world' } {}
-// @Mutation hello(_, args: Argument): [String] {}
-// @Mutation() hello(_, args: Argument) {}
-// @Mutation([]) hello(_, args: Argument) {}
-// @Mutation hello(_, args: Argument): String {}
+import { getTypeMetadata } from '../../src/storage';
 
 describe('@Mutation', () => {
   it(`adds a mutation to target if with a parameter`, () => {
     class A { @Mutation(() => String) hello() { return '' }}
 
-    const typeMetadata: TypeMetadata = Reflect.getMetadata('graphql:metadata', A.prototype)
+    const typeMetadata = getTypeMetadata(A.prototype)
     const mutation = typeMetadata.fieldMetadataMap['hello']
     expect(mutation).toHaveProperty('nullable', false)
     expect(mutation).toHaveProperty('isList', false)
@@ -28,7 +16,7 @@ describe('@Mutation', () => {
   it(`adds a mutation to target if with a array parameter`, () => {
     class A { @Mutation(() => [String]) hello() { return '' }}
 
-    const typeMetadata: TypeMetadata = Reflect.getMetadata('graphql:metadata', A.prototype)
+    const typeMetadata = getTypeMetadata(A.prototype)
     const mutation = typeMetadata.fieldMetadataMap['hello']
     expect(mutation).toHaveProperty('nullable', false)
     expect(mutation).toHaveProperty('isList', true)

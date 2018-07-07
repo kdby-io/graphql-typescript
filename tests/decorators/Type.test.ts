@@ -1,11 +1,11 @@
 import { Type, Field, String, Mutation } from '../../src'
-import { getLiteral } from '../../src/services'
+import { getTypeMetadata } from '../../src/storage';
 
 describe('@Type', () => {
   it('sets literal of target', () => {
     @Type class A {}
 
-    const literal = getLiteral(A.prototype)
+    const literal = getTypeMetadata(A.prototype).getLiteral()
     expect(literal).toMatch(/type A \{(.|\n)*\}/)
   })
 
@@ -18,7 +18,7 @@ describe('@Type', () => {
       hello(_: any, _args: Argument) {}
     }
 
-    const literal = getLiteral(A.prototype)
+    const literal = getTypeMetadata(A.prototype).getLiteral()
     expect(literal).toMatch(/type A \{(.|\n)*hello\(arg1: String!\): String!(.|\n)*\}/)
   })
 
@@ -26,7 +26,7 @@ describe('@Type', () => {
     class Argument { @Field(() => String) arg1: string }
     @Type class A { @Mutation(() => String) hello(_: any, _args: Argument) {} }
 
-    const literal = getLiteral(A.prototype)
+    const literal = getTypeMetadata(A.prototype).getLiteral()
     expect(literal).toMatch(/type A \{(.|\n)*\}/)
   })
 })

@@ -174,7 +174,8 @@ All fields and mutations are Non-null type by default.
 Adding `@Nullable to fields or mutations properties make it nullable.
 
 ```ts
-@Type Hello {
+@Type
+class Hello {
   @Nullable
   @Field(() => String)
   hello: string

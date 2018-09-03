@@ -12,7 +12,7 @@
     "apollo"
   ],
   "bugs": {
-    "url": "https://github.com/vichyssoise/graphql-typescript/issues"
+    "url": "https://github.com/pueue/graphql-typescript/issues"
   },
   "scripts": {
     "test": "jest --coverage",
@@ -20,11 +20,11 @@
     "build": "rm -rf dist && tsc",
     "prepare": "yarn build"
   },
-  "author": "Vichyssoise <v@vichyssoise.io>",
+  "author": "Sangwon Kim <dev@pueue.com>",
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vichssoise/graphql-typescript.git"
+    "url": "https://github.com/pueue/graphql-typescript.git"
   },
   "devDependencies": {
     "@types/jest": "^22.1.2",
